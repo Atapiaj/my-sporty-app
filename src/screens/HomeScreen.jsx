@@ -189,8 +189,10 @@ export default function HomeScreen({ navigation }) {
                       flexDirection: 'row', alignItems: 'center',
                       padding: 16, borderRadius: 12, marginBottom: 8,
                       borderWidth: 1,
-                      borderColor: selectedEquipoId === equipo.id ? '#4f46e5' : '#eaeaea',
-                      backgroundColor: selectedEquipoId === equipo.id ? '#eef2ff' : '#ffffff',
+                      borderColor: selectedEquipoId === equipo.id ? '#4f46e5' : (isDarkMode ? '#374151' : '#eaeaea'),
+                      backgroundColor: selectedEquipoId === equipo.id
+                        ? (isDarkMode ? '#312e81' : '#eef2ff')
+                        : (isDarkMode ? '#262626' : '#ffffff'),
                     }}
                     onPress={() => setSelectedEquipoId(equipo.id)}
                   >

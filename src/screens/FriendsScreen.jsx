@@ -151,7 +151,8 @@ export default function FriendsScreen({ navigation }) {
                   item={item} 
                   onPressChat={() => navigation.navigate('Mensajes', { 
                     screen: 'ChatRoomScreen', 
-                    params: { type: 'amigo', target: item }
+                    params: { type: 'amigo', target: item },
+                    initial: false,
                   })}
                 />
               ))

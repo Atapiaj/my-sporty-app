@@ -1,11 +1,11 @@
-import React, { useContext, useState, useMemo } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useContext, useState, useMemo, useCallback } from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { EventoContext } from '../context/EventoContext';
-import { CampeonatoContext } from '../context/CampeonatoContext';
+import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import { ThemeContext } from '../context/ThemeContext';
-import EventCard from '../components/EventCard';
+import PartidoCard from '../components/PartidoCard';
+import { getMisPartidosService } from '../services/eventoService';
 
 LocaleConfig.locales['es'] = {
   monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
@@ -37,82 +37,119 @@ const getSportColor = (deporte, fallbackDotColor) => {
   return SPORT_COLORS[key] || fallbackDotColor || DEFAULT_SPORT_COLOR;
 };
 
+const getFechaYMD = (fechaRaw) => {
+  if (!fechaRaw) return null;
+  if (typeof fechaRaw === 'string') {
+    if (fechaRaw.includes('T')) return fechaRaw.split('T')[0];
+    if (fechaRaw.includes(' ')) return fechaRaw.split(' ')[0];
+    return fechaRaw;
+  }
+  try {
+    return new Date(fechaRaw).toISOString().split('T')[0];
+  } catch {
+    return null;
+  }
+};
+
 export default function CalendarioScreen({ navigation }) {
-  const { misCampeonatos, campeonatosPublicos } = useContext(CampeonatoContext);
   const { isDarkMode } = useContext(ThemeContext);
   const { usuario } = useContext(AuthContext);
-  
+
   const todayDateString = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(todayDateString);
   const [currentMonth, setCurrentMonth] = useState(todayDateString.substring(0, 7));
+  const [misPartidos, setMisPartidos] = useState([]);
+  const [isLoadingPartidos, setIsLoadingPartidos] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Combine and deduplicate championships
-  const allEvents = useMemo(() => {
-    const combined = [...misCampeonatos, ...campeonatosPublicos];
-    const uniqueMap = new Map();
-    combined.forEach(event => {
-      if (event.id && event.fecha_inicio) {
-        uniqueMap.set(event.id, event);
-      }
-    });
-    return Array.from(uniqueMap.values());
-  }, [misCampeonatos, campeonatosPublicos]);
+  // Function to load all user team matches
+  const cargarDatos = useCallback(async () => {
+    if (!usuario?.id) return;
+    setIsLoadingPartidos(true);
+    try {
+      const partidosData = await getMisPartidosService();
+      setMisPartidos(partidosData || []);
+    } catch (error) {
+      console.error("Error al cargar partidos en calendario:", error);
+    } finally {
+      setIsLoadingPartidos(false);
+    }
+  }, [usuario]);
 
-  // Create marked dates for Calendar with sport-specific multi-dots
+  // Refetch data every time user enters / focuses the Calendar screen
+  useFocusEffect(
+    useCallback(() => {
+      cargarDatos();
+    }, [cargarDatos])
+  );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await cargarDatos();
+    setRefreshing(false);
+  }, [cargarDatos]);
+
+  // Create marked dates for Calendar with sport-specific multi-dots (partidos only)
   const markedDates = useMemo(() => {
     const marks = {};
 
-    allEvents.forEach(event => {
-      if (!event.fecha_inicio) return;
-      const dateKey = event.fecha_inicio;
-      const color = getSportColor(event.deporte, event.dotColor);
+    misPartidos.forEach(partido => {
+      if (!partido.fecha) return;
+      const dateKey = getFechaYMD(partido.fecha);
+      if (!dateKey) return;
+
+      const deporte = partido.campeonato_deporte || partido.deporte;
+      const color = getSportColor(deporte);
 
       if (!marks[dateKey]) {
-        marks[dateKey] = {
-          dots: []
-        };
+        marks[dateKey] = { dots: [] };
       }
 
-      // Avoid duplicate dot colors if multiple events of same sport on same day (max 3 dots)
       const alreadyHasDot = marks[dateKey].dots.some(d => d.color === color);
       if (!alreadyHasDot && marks[dateKey].dots.length < 4) {
         marks[dateKey].dots.push({
-          key: `event-${event.id}`,
+          key: `partido-${partido.id}`,
           color: color,
           selectedDotColor: '#ffffff'
         });
       }
     });
-    
+
     // Override/merge selected day style
     if (marks[selectedDate]) {
-      marks[selectedDate] = { 
-        ...marks[selectedDate], 
-        selected: true, 
-        selectedColor: '#2563eb' 
+      marks[selectedDate] = {
+        ...marks[selectedDate],
+        selected: true,
+        selectedColor: '#2563eb'
       };
     } else {
-      marks[selectedDate] = { 
-        selected: true, 
+      marks[selectedDate] = {
+        selected: true,
         selectedColor: '#2563eb',
         dots: []
       };
     }
     return marks;
-  }, [allEvents, selectedDate]);
+  }, [misPartidos, selectedDate]);
 
-  const selectedDayEvents = useMemo(() => {
-    return allEvents.filter(event => event.fecha_inicio === selectedDate);
-  }, [allEvents, selectedDate]);
+  // Partidos for selected day
+  const selectedDayPartidos = useMemo(() => {
+    return misPartidos.filter(partido => getFechaYMD(partido.fecha) === selectedDate);
+  }, [misPartidos, selectedDate]);
 
-  const upcomingEvents = useMemo(() => {
-    return allEvents.filter(event => {
-      if (!event.fecha_inicio) return false;
-      const isStrictlyFuture = event.fecha_inicio > todayDateString;
-      const isNotSelectedDay = event.fecha_inicio !== selectedDate;
-      return isStrictlyFuture && isNotSelectedDay;
-    }).sort((a, b) => a.fecha_inicio.localeCompare(b.fecha_inicio));
-  }, [allEvents, todayDateString, selectedDate]);
+  // Upcoming partidos
+  const upcomingPartidos = useMemo(() => {
+    return misPartidos
+      .filter(partido => {
+        const ymd = getFechaYMD(partido.fecha);
+        return ymd && ymd > todayDateString && ymd !== selectedDate;
+      })
+      .sort((a, b) => {
+        const dateA = getFechaYMD(a.fecha) || '';
+        const dateB = getFechaYMD(b.fecha) || '';
+        return dateA.localeCompare(dateB);
+      });
+  }, [misPartidos, todayDateString, selectedDate]);
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
@@ -123,7 +160,7 @@ export default function CalendarioScreen({ navigation }) {
   };
 
   const themeConfig = {
-    calendarBackground: isDarkMode ? '#171717' : '#ffffff',
+    calendarBackground: isDarkMode ? '#262626' : '#ffffff',
     textSectionTitleColor: isDarkMode ? '#a3a3a3' : '#b6c1cd',
     selectedDayBackgroundColor: '#2563eb',
     selectedDayTextColor: '#ffffff',
@@ -144,8 +181,20 @@ export default function CalendarioScreen({ navigation }) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
-      <ScrollView style={{ flex: 1 }} className="pt-4 px-5" showsVerticalScrollIndicator={false}>
-        
+      <ScrollView
+        style={{ flex: 1 }}
+        className="pt-4 px-5"
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#2563eb']}
+            tintColor={isDarkMode ? '#ffffff' : '#2563eb'}
+          />
+        }
+      >
+
         {/* ── Leyenda de Deportes por Color ── */}
         <View className="flex-row flex-wrap justify-between items-center bg-white dark:bg-neutral-800 p-3 rounded-xl border border-[#eaeaea] dark:border-neutral-700 mb-4 shadow-sm">
           <View className="flex-row items-center mr-2 mb-1">
@@ -178,56 +227,78 @@ export default function CalendarioScreen({ navigation }) {
           />
         </View>
 
+        {/* ── Partidos del día seleccionado ── */}
         <View className="mb-6">
           <Text className="text-sm text-[#8a8a8a] dark:text-neutral-500 font-medium uppercase tracking-wider mb-3">
-            Eventos {selectedDate === todayDateString ? "de hoy" : `del ${selectedDate}`}
+            Partidos {selectedDate === todayDateString ? "de hoy" : `del ${selectedDate}`}
           </Text>
-          {selectedDayEvents.length > 0 ? (
-            selectedDayEvents.map(event => (
-              <EventCard 
-                key={event.id} 
-                evento={event} 
-                onPress={() => navigation.navigate("Eventos", { 
-                  screen: "FasesCampeonatoScreen",
-                  params: {
-                    campeonato: event,
-                    readOnly: event.propietario_id != usuario?.id 
+
+          {selectedDayPartidos.length > 0 ? (
+            selectedDayPartidos.map(partido => (
+              <PartidoCard
+                key={`partido-${partido.id}`}
+                partido={partido}
+                onPress={() => {
+                  if (partido.campeonato_id) {
+                    navigation.navigate("Eventos", {
+                      screen: "FasesCampeonatoScreen",
+                      initial: false,
+                      params: {
+                        campeonato: {
+                          id: partido.campeonato_id,
+                          nombre: partido.campeonato_nombre,
+                          deporte: partido.campeonato_deporte || partido.deporte,
+                          propietario_id: partido.campeonato_propietario_id
+                        },
+                        readOnly: partido.campeonato_propietario_id != usuario?.id
+                      }
+                    });
                   }
-                })}
+                }}
               />
             ))
           ) : (
             <View className="p-6 items-center bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 border-dashed">
               <Text className="text-sm text-[#8a8a8a] dark:text-neutral-400">
-                {selectedDate === todayDateString 
-                  ? "No hay eventos para hoy." 
-                  : "No hay eventos para este día."}
+                {selectedDate === todayDateString
+                  ? "No hay partidos para hoy."
+                  : "No hay partidos para este día."}
               </Text>
             </View>
           )}
         </View>
 
+        {/* ── Próximos partidos ── */}
         <View className="mb-10">
           <Text className="text-sm text-[#8a8a8a] dark:text-neutral-500 font-medium uppercase tracking-wider mb-3">
-            Próximos eventos
+            Próximos partidos
           </Text>
-          {upcomingEvents.length > 0 ? (
-            upcomingEvents.map(event => (
-              <EventCard 
-                key={event.id} 
-                evento={event} 
-                onPress={() => navigation.navigate("Eventos", { 
-                  screen: "FasesCampeonatoScreen",
-                  params: {
-                    campeonato: event,
-                    readOnly: event.propietario_id != usuario?.id 
+          {upcomingPartidos.length > 0 ? (
+            upcomingPartidos.map(partido => (
+              <PartidoCard
+                key={`upcoming-partido-${partido.id}`}
+                partido={partido}
+                onPress={() => {
+                  if (partido.campeonato_id) {
+                    navigation.navigate("Eventos", {
+                      screen: "FasesCampeonatoScreen",
+                      params: {
+                        campeonato: {
+                          id: partido.campeonato_id,
+                          nombre: partido.campeonato_nombre,
+                          deporte: partido.campeonato_deporte || partido.deporte,
+                          propietario_id: partido.campeonato_propietario_id
+                        },
+                        readOnly: partido.campeonato_propietario_id != usuario?.id
+                      }
+                    });
                   }
-                })}
+                }}
               />
             ))
           ) : (
             <View className="p-6 items-center bg-white dark:bg-neutral-800 rounded-xl border border-[#eaeaea] dark:border-neutral-700 border-dashed">
-              <Text className="text-sm text-[#8a8a8a] dark:text-neutral-400">No hay eventos próximos.</Text>
+              <Text className="text-sm text-[#8a8a8a] dark:text-neutral-400">No hay partidos próximos.</Text>
             </View>
           )}
         </View>
@@ -235,4 +306,3 @@ export default function CalendarioScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-

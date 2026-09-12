@@ -148,3 +148,13 @@ export const getEscenariosService = async () => {
   const res = await axios.get(`${API_URL}/escenarios-deportivos`, await authHeader());
   return res.data.data || [];
 };
+
+export const getMisPartidosService = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/partidos/mis-partidos`, await authHeader());
+    return res.data.data || [];
+  } catch (error) {
+    console.error("Error en getMisPartidosService:", error);
+    return [];
+  }
+};

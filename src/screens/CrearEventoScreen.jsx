@@ -69,10 +69,10 @@ export default function CrearEventoScreen({ navigation }) {
     let estado = 'borrador';
     if (tipoActividad === 'campeonato' && finDate.getTime() < today.getTime()) {
       estado = 'finalizado';
-    } else if (inicioDate.getTime() > today.getTime()) {
-      estado = 'programado';
     } else if (inicioDate.getTime() <= today.getTime()) {
       estado = 'activo';
+    } else if (inicioDate.getTime() > today.getTime()) {
+      estado = 'borrador';
     }
  
     const eventoData = {
@@ -500,8 +500,10 @@ export default function CrearEventoScreen({ navigation }) {
                         flexDirection: 'row', alignItems: 'center',
                         padding: 16, borderRadius: 12, mb: 8,
                         borderWidth: 1,
-                        borderColor: selectedTeam === equipo.id ? '#4f46e5' : '#eaeaea',
-                        backgroundColor: selectedTeam === equipo.id ? '#eef2ff' : '#ffffff',
+                        borderColor: selectedTeam === equipo.id ? '#4f46e5' : (isDarkMode ? '#374151' : '#eaeaea'),
+                        backgroundColor: selectedTeam === equipo.id
+                          ? (isDarkMode ? '#312e81' : '#eef2ff')
+                          : (isDarkMode ? '#262626' : '#ffffff'),
                         marginBottom: 8
                       }}
                       onPress={() => setSelectedTeam(equipo.id)}

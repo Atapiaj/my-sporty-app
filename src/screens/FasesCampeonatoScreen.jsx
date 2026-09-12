@@ -62,22 +62,23 @@ const cargarDatosIniciales = async () => {
       const dbFases = await getFasesService(campeonatoActual.id);
 
       const calcularEquiposRestantesFase = (f) => {
-        const metodo = f.tipo === 'fase_grupos' ? 'grupos' : f.tipo;
+        const metodo = f.tipo === 'fase_grupos' ? 'grupos' : (f.metodo || f.tipo);
         const equiposIniciales = f.numero_equipos;
         const tamanoGrupo = parseInt(f.tamano_grupo, 10);
-        const clasificados = parseInt(f.clasificados_por_grupo, 10);
+        const clasificados = parseInt(f.clasificados_por_grupo || f.clasificadosPorGrupo, 10);
+        const numGrupos = parseInt(f.numero_grupos || f.numeroGrupos, 10) || (tamanoGrupo ? Math.floor(equiposIniciales / tamanoGrupo) : 0);
 
-        if (metodo === 'liga') return 1;
-        if (metodo === 'eliminatoria') {
-          return equiposIniciales % 2 !== 0
-            ? Math.ceil((equiposIniciales - 1) / 2) + 1
-            : equiposIniciales / 2;
+        if (metodo === 'liga' || metodo === 'eliminatoria') return 1;
+        if (metodo === 'grupos') {
+          if (clasificados && numGrupos) {
+            return numGrupos * clasificados;
+          }
+          if (tamanoGrupo && clasificados) {
+            const grupos = equiposIniciales / tamanoGrupo;
+            return grupos * clasificados;
+          }
         }
-        if (metodo === 'grupos' && tamanoGrupo && clasificados) {
-          const grupos = equiposIniciales / tamanoGrupo;
-          return grupos * clasificados;
-        }
-        return equiposIniciales;
+        return 1;
       };
 
       const mappedFases = dbFases.map(f => ({
@@ -235,19 +236,13 @@ const agregarFase = () => {
 
   let equiposRestantes = equiposAnteriores;
 
-  if (equiposAnteriores <= 0) {
-    alert('No hay equipos suficientes para crear una fase.');
+  if (equiposAnteriores <= 1) {
+    alert('El campeonato ya cuenta con 1 solo equipo victorioso (campeón). No se pueden agregar más fases.');
     return;
   }
 
-  if (metodoFase === "liga") {
+  if (metodoFase === "liga" || metodoFase === "eliminatoria") {
     equiposRestantes = 1;
-  } else if (metodoFase === "eliminatoria") {
-    if (equiposAnteriores % 2 !== 0) {
-      equiposRestantes = Math.ceil((equiposAnteriores - 1) / 2) + 1;
-    } else {
-      equiposRestantes = equiposAnteriores / 2;
-    }
   } else if (metodoFase === "grupos") {
     const grupos = parseInt(numeroGrupos, 10);
     const clasificados = parseInt(clasificadosPorGrupo, 10);
@@ -280,11 +275,6 @@ const agregarFase = () => {
     }
 
     equiposRestantes = grupos * clasificados;
-  }
-
-  if (metodoFase === 'eliminatoria' && equiposRestantes % 2 !== 0) {
-      alert("No se puede hacer eliminatoria con una cantidad impar de equipos.");
-      return;
   }
 
   const nuevaFaseParams = {
@@ -353,7 +343,7 @@ const eliminarFase = (idFase) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
-      <View style={{ flex: 1 }} className="px-5 pt-4 bg-[#fafafa] dark:bg-neutral-900">
+      <View style={{ flex: 1 }} className="px-5 pt-4 bg-[#f9fafb] dark:bg-[#171717]">
         <View className="flex-row items-center mb-5">
           <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 12, padding: 4, borderRadius: 999 }}>
             <Ionicons name="arrow-back" size={24} color={isDarkMode ? "#fff" : "#000"} className="dark:text-white" />
@@ -483,22 +473,24 @@ const eliminarFase = (idFase) => {
                     {isCampeonato && (
                       <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
                         Método: <Text className="font-medium text-[#1a1a1a] dark:text-neutral-300 capitalize">{item.metodo}</Text>
-                        {item.metodo === "grupos" && ` (${item.numeroGrupos} grupos de ${item.tamanoGrupo}, ${item.clasificadosPorGrupo} clas.)`}
+                        {item.metodo === "grupos" && ` (${item.numeroGrupos} grupos de ${item.tamanoGrupo}, ${item.clasificadosPorGrupo} clas. por grupo)`}
                       </Text>
                     )}
                     <Text className="text-[13px] text-[#6a6a6a] dark:text-neutral-400 mt-[2px]">
-                      Equipos: {item.metodo === 'liga' ? `${equiposInscritos.length} → 1` : `${item.equiposIniciales} → ${item.equiposRestantes}`}
+                      Equipos: {item.metodo === 'grupos'
+                        ? `${item.equiposIniciales} → ${item.equiposRestantes} clasificados${item.clasificadosPorGrupo ? ` (${item.clasificadosPorGrupo} por grupo)` : ''}`
+                        : `${item.equiposIniciales} → 1 campeón`}
                     </Text>
                   </View>
 
                   {/* Buttons right */}
                   <View className="flex-row items-center space-x-2">
-                    <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} style={{ backgroundColor: '#e0e7ff', padding: 8, borderRadius: 8 }}>
-                      <Ionicons name="calendar-outline" size={20} className="text-indigo-600 dark:text-indigo-400" color="#4f46e5" />
+                    <TouchableOpacity onPress={() => navigation.navigate('FixtureFaseScreen', { fase: item, campeonato: campeonatoActual, readOnly: !isOwner })} style={{ backgroundColor: isDarkMode ? '#312e81' : '#e0e7ff', padding: 8, borderRadius: 8 }}>
+                      <Ionicons name="calendar-outline" size={20} color={isDarkMode ? '#818cf8' : '#4f46e5'} />
                     </TouchableOpacity>
                     {isCampeonato && isOwner && (
-                      <TouchableOpacity onPress={() => eliminarFase(item.id)} style={{ backgroundColor: '#fff1f2', padding: 8, borderRadius: 8 }}>
-                        <Ionicons name="trash-outline" size={20} color="#ff4d4f" />
+                      <TouchableOpacity onPress={() => eliminarFase(item.id)} style={{ backgroundColor: isDarkMode ? '#450a0a' : '#fff1f2', padding: 8, borderRadius: 8 }}>
+                        <Ionicons name="trash-outline" size={20} color={isDarkMode ? '#f87171' : '#ff4d4f'} />
                       </TouchableOpacity>
                     )}
                   </View>
@@ -556,28 +548,32 @@ const eliminarFase = (idFase) => {
                 <TouchableOpacity
                   style={{
                     paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
-                    backgroundColor: metodoFase === 'liga' ? '#dbeafe' : '#f5f5f5',
-                    borderWidth: 1, borderColor: metodoFase === 'liga' ? '#93c5fd' : '#eaeaea',
+                    backgroundColor: metodoFase === 'liga' ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : (isDarkMode ? '#262626' : '#f5f5f5'),
+                    borderWidth: 1, borderColor: metodoFase === 'liga' ? (isDarkMode ? '#3b82f6' : '#93c5fd') : (isDarkMode ? '#404040' : '#eaeaea'),
                   }}
                   onPress={() => setMetodoFase('liga')}
                 >
-                  <Text className={`dark:text-white ${metodoFase === 'liga' && 'dark:text-blue-200'}`}>Liga</Text>
+                  <Text style={{ color: metodoFase === 'liga' ? (isDarkMode ? '#93c5fd' : '#1e40af') : (isDarkMode ? '#e5e5e5' : '#1a1a1a'), fontWeight: '600' }}>Liga</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{
                     paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
-                    backgroundColor: metodoFase === 'eliminatoria' ? '#dbeafe' : '#f5f5f5',
-                    borderWidth: 1, borderColor: metodoFase === 'eliminatoria' ? '#93c5fd' : '#eaeaea',
+                    backgroundColor: metodoFase === 'eliminatoria' ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : (isDarkMode ? '#262626' : '#f5f5f5'),
+                    borderWidth: 1, borderColor: metodoFase === 'eliminatoria' ? (isDarkMode ? '#3b82f6' : '#93c5fd') : (isDarkMode ? '#404040' : '#eaeaea'),
                   }}
                   onPress={() => setMetodoFase('eliminatoria')}
                 >
-                  <Text className={`dark:text-white ${metodoFase === 'eliminatoria' && 'dark:text-blue-200'}`}>Eliminatoria</Text>
+                  <Text style={{ color: metodoFase === 'eliminatoria' ? (isDarkMode ? '#93c5fd' : '#1e40af') : (isDarkMode ? '#e5e5e5' : '#1a1a1a'), fontWeight: '600' }}>Eliminatoria</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className={`p-2.5 rounded-md mx-1 border ${metodoFase === 'grupos' ? 'bg-[#e6f2ff] dark:bg-blue-900/30 border-[#b3d7ff] dark:border-blue-800' : 'bg-[#f5f5f5] dark:bg-neutral-700 border-[#eaeaea] dark:border-neutral-600'}`}
+                  style={{
+                    paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
+                    backgroundColor: metodoFase === 'grupos' ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : (isDarkMode ? '#262626' : '#f5f5f5'),
+                    borderWidth: 1, borderColor: metodoFase === 'grupos' ? (isDarkMode ? '#3b82f6' : '#93c5fd') : (isDarkMode ? '#404040' : '#eaeaea'),
+                  }}
                   onPress={() => setMetodoFase('grupos')}
                 >
-                  <Text className={`dark:text-white ${metodoFase === 'grupos' && 'dark:text-blue-200'}`}>Fase de grupos</Text>
+                  <Text style={{ color: metodoFase === 'grupos' ? (isDarkMode ? '#93c5fd' : '#1e40af') : (isDarkMode ? '#e5e5e5' : '#1a1a1a'), fontWeight: '600' }}>Fase de grupos</Text>
                 </TouchableOpacity>
               </View>
               <Button
@@ -590,7 +586,7 @@ const eliminarFase = (idFase) => {
                     fases.length === 0
                       ? campeonato.numero_equipos
                       : fases[fases.length - 1].equiposRestantes
-                  ) === 1
+                  ) <= 1
                 }
               />
               {metodoFase === 'grupos' && (
@@ -602,10 +598,10 @@ const eliminarFase = (idFase) => {
                     <Picker
                       selectedValue={numeroGrupos}
                       onValueChange={(value) => setNumeroGrupos(value)}
-                      style={{ borderWidth:0, color: '#1a1a1a' }}
-                      dropdownIconColor="#1a1a1a"
+                      style={{ borderWidth:0, color: isDarkMode ? '#ffffff' : '#1a1a1a' }}
+                      dropdownIconColor={isDarkMode ? '#ffffff' : '#1a1a1a'}
                     >
-                      <Picker.Item label="Seleccione número de grupos" value="" color="#1a1a1a" />
+                      <Picker.Item label="Seleccione número de grupos" value="" color={isDarkMode ? '#a3a3a3' : '#1a1a1a'} />
                       {calcularDivisores(
                         fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes
                       )
@@ -614,7 +610,7 @@ const eliminarFase = (idFase) => {
                           return div % 2 === 0 && equiposActuales / div >= 2;
                         })
                         .map((div, idx) => (
-                          <Picker.Item key={idx} label={`${div}`} value={div?.toString()} color="#1a1a1a" />
+                          <Picker.Item key={idx} label={`${div}`} value={div?.toString()} color={isDarkMode ? '#ffffff' : '#1a1a1a'} />
                         ))}
                     </Picker>
                   </View>
@@ -743,17 +739,26 @@ const eliminarFase = (idFase) => {
         {isCampeonato && isOwner && (
           <View className="absolute bottom-6 left-0 right-0 items-center">
             <TouchableOpacity
-              style={{ backgroundColor: '#007bff', paddingVertical: 14, paddingHorizontal: 40, borderRadius: 8 }}
+              style={{
+                backgroundColor: (fases.length > 0 && fases[fases.length - 1].equiposRestantes === 1)
+                  ? (isDarkMode ? '#404040' : '#9ca3af')
+                  : '#007bff',
+                paddingVertical: 14, paddingHorizontal: 40, borderRadius: 8
+              }}
               onPress={() => setModalVisible(true)}
               disabled={
                 (
                   fases.length === 0
                     ? campeonato.numero_equipos
                     : fases[fases.length - 1].equiposRestantes
-                ) === 1
+                ) <= 1
               }
             >
-              <Text className="text-white font-semibold text-[15px]">Agregar Fase</Text>
+              <Text className="text-white font-semibold text-[15px]">
+                {(fases.length > 0 && fases[fases.length - 1].equiposRestantes === 1)
+                  ? 'Campeonato Concluido (1 Campeón)'
+                  : 'Agregar Fase'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}

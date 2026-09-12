@@ -5,11 +5,13 @@ import {
 import { useRoute } from '@react-navigation/native';
 import { AmistadContext } from '../context/AmistadContext';
 import { EquipoContext } from '../context/EquipoContext';
+import { ThemeContext } from '../context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function InvitarAmigosScreen({ navigation }) {
   const { amigos, cargarAmigos } = useContext(AmistadContext);
   const { enviarInvitacion } = useContext(EquipoContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const [enviando, setEnviando] = useState(null);
   const route = useRoute();
   const { equipoId } = route.params;
@@ -44,45 +46,39 @@ export default function InvitarAmigosScreen({ navigation }) {
   }
 
   const renderAmigo = ({ item }) => (
-    <View style={styles.amigoContainer}>
-      <Text style={styles.amigoNombre}>{item.nombre}</Text>
+    <View style={[styles.amigoContainer, { borderColor: isDarkMode ? '#262626' : '#f0f0f0' }]}>
+      <Text style={[styles.amigoNombre, { color: isDarkMode ? '#ffffff' : '#111827' }]}>{item.nombre}</Text>
       <TouchableOpacity 
         onPress={() => enviarInvitacionAEquipo(item.id)}
         disabled={enviando === item.id}
         style={{
           paddingHorizontal: 16, flexDirection: 'row',
-          justifyContent: 'center', backgroundColor: '#eff6ff',
+          justifyContent: 'center', backgroundColor: isDarkMode ? '#1e3a8a' : '#eff6ff',
           paddingVertical: 10, borderRadius: 12,
-          borderWidth: 1, borderColor: '#dbeafe'
+          borderWidth: 1, borderColor: isDarkMode ? '#3b82f6' : '#dbeafe'
         }}
       >
-        <Ionicons name="add-circle-outline" size={16} color="#1D4ED8" />
-        <Text className="text-blue-700 dark:text-blue-400 font-bold ml-1.5 text-xs">Invitar</Text>
+        <Ionicons name="add-circle-outline" size={16} color={isDarkMode ? '#60a5fa' : '#1D4ED8'} />
+        <Text className="text-blue-700 dark:text-blue-300 font-bold ml-1.5 text-xs">Invitar</Text>
       </TouchableOpacity>
-      {/* <Button
-        title={enviando === item.id ? 'Enviando...' : 'Invitar'}
-        onPress={() => enviarInvitacionAEquipo(item.id)}
-        disabled={enviando === item.id}
-        color="#1E40AF"
-      /> */}
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#171717' : '#fff' }]}>
       <FlatList
         style={{ flex: 1 }}
         data={amigos}
         keyExtractor={(item) => item.id?.toString()}
         renderItem={renderAmigo}
-        ListEmptyComponent={<Text>No tienes amigos disponibles</Text>}
+        ListEmptyComponent={<Text style={{ color: isDarkMode ? '#a3a3a3' : '#6b7280', textAlign: 'center', marginTop: 20 }}>No tienes amigos disponibles</Text>}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+  container: { flex: 1, padding: 16 },
   titulo: { fontSize: 20, fontWeight: 'bold', marginBottom: 12, color: '#1E40AF' },
   amigoContainer: {
     flexDirection: 'row',
@@ -91,7 +87,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderBottomWidth: 1,
-    borderColor: '#f0f0f0',
   },
   amigoNombre: { fontSize: 16 },
 });

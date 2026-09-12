@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, FlatList, SafeAreaView } from 'react-native';
+import { ThemeContext } from '../context/ThemeContext';
 
 const FixtureInvitadosScreen = ({ route }) => {
-  // Asumiendo que los equipos invitados se pasan como parámetro desde invitacionEquipoScreen
   const { equiposInvitados } = route.params || { equiposInvitados: [] };
+  const { isDarkMode } = useContext(ThemeContext);
 
-  // Ejemplo de fixture: generar partidos aleatorios entre equipos invitados
   const generarFixture = (equipos) => {
     const fixture = [];
     for (let i = 0; i < equipos.length; i += 2) {
@@ -24,53 +24,45 @@ const FixtureInvitadosScreen = ({ route }) => {
   const fixture = generarFixture(equiposInvitados);
 
   const renderItem = ({ item }) => (
-    <View style={styles.matchContainer}>
-      <Text style={styles.matchText}>
+    <View
+      style={{
+        padding: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: isDarkMode ? '#374151' : '#e5e7eb',
+        backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
+      }}
+    >
+      <Text style={{ fontSize: 16, fontWeight: '600', color: isDarkMode ? '#f3f4f6' : '#1a1a1a', marginBottom: 2 }}>
         {item.equipo1} vs {item.equipo2}
       </Text>
-      <Text style={styles.dateText}>{item.fecha}</Text>
+      <Text style={{ fontSize: 13, color: isDarkMode ? '#9ca3af' : '#6b7280' }}>{item.fecha}</Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Fixture de Equipos Invitados</Text>
-      {fixture.length > 0 ? (
-        <FlatList
-          data={fixture}
-          keyExtractor={(item) => item.id?.toString()}
-          renderItem={renderItem}
-        />
-      ) : (
-        <Text>No hay suficientes equipos para generar un fixture.</Text>
-      )}
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#171717' : '#f9fafb' }}>
+      <View style={{ flex: 1, padding: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: 'bold', color: isDarkMode ? '#f3f4f6' : '#1a1a1a', marginBottom: 16 }}>
+          Fixture de Equipos Invitados
+        </Text>
+        {fixture.length > 0 ? (
+          <View style={{ borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: isDarkMode ? '#374151' : '#e5e7eb' }}>
+            <FlatList
+              data={fixture}
+              keyExtractor={(item) => item.id?.toString()}
+              renderItem={renderItem}
+            />
+          </View>
+        ) : (
+          <View style={{ padding: 32, alignItems: 'center', backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff', borderRadius: 12, borderWidth: 1, borderColor: isDarkMode ? '#374151' : '#e5e7eb', borderStyle: 'dashed' }}>
+            <Text style={{ color: isDarkMode ? '#6b7280' : '#9ca3af', fontSize: 14 }}>
+              No hay suficientes equipos para generar un fixture.
+            </Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  matchContainer: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  matchText: {
-    fontSize: 18,
-  },
-  dateText: {
-    fontSize: 14,
-    color: '#666',
-  },
-});
 
 export default FixtureInvitadosScreen;

@@ -65,35 +65,38 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
             onPress={onEdit}
             style={{
               flex: 1, flexDirection: 'row', alignItems: 'center',
-              justifyContent: 'center', backgroundColor: '#eff6ff',
+              justifyContent: 'center',
+              backgroundColor: isDarkMode ? '#1e3a8a' : '#eff6ff',
               paddingVertical: 10, borderRadius: 12,
-              borderWidth: 1, borderColor: '#dbeafe',
+              borderWidth: 1, borderColor: isDarkMode ? '#1d4ed8' : '#dbeafe',
             }}
           >
-            <Ionicons name="create-outline" size={16} color="#1D4ED8" />
+            <Ionicons name="create-outline" size={16} color={isDarkMode ? '#93c5fd' : '#1D4ED8'} />
             <Text className="text-blue-700 dark:text-blue-400 font-bold ml-1.5 text-xs">Editar</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={onInvite}
             style={{
               flex: 1, flexDirection: 'row', alignItems: 'center',
-              justifyContent: 'center', backgroundColor: '#f0fdf4',
+              justifyContent: 'center',
+              backgroundColor: isDarkMode ? '#14532d' : '#f0fdf4',
               paddingVertical: 10, borderRadius: 12,
-              borderWidth: 1, borderColor: '#dcfce7',
+              borderWidth: 1, borderColor: isDarkMode ? '#16a34a' : '#dcfce7',
             }}
           >
-            <Ionicons name="person-add-outline" size={16} color="#16A34A" />
+            <Ionicons name="person-add-outline" size={16} color={isDarkMode ? '#86efac' : '#16A34A'} />
             <Text className="text-green-700 dark:text-green-400 font-bold ml-1.5 text-xs">Invitar</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={onDelete}
             style={{
-              backgroundColor: '#fef2f2', paddingHorizontal: 16,
+              backgroundColor: isDarkMode ? '#450a0a' : '#fef2f2',
+              paddingHorizontal: 16,
               paddingVertical: 10, borderRadius: 12,
-              borderWidth: 1, borderColor: '#fee2e2',
+              borderWidth: 1, borderColor: isDarkMode ? '#991b1b' : '#fee2e2',
             }}
           >
-            <Ionicons name="trash-outline" size={16} color="#DC2626" />
+            <Ionicons name="trash-outline" size={16} color={isDarkMode ? '#f87171' : '#DC2626'} />
           </TouchableOpacity>
         </View>
       )}

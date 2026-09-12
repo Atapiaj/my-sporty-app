@@ -192,48 +192,150 @@ export default function ChatRoomScreen({ route, navigation }) {
     setNuevoMensaje("");
   };
 
-  const renderMensaje = ({ item }) => {
+  const isSameDay = (d1, d2) => {
+    if (!d1 || !d2) return false;
+    const date1 = new Date(d1);
+    const date2 = new Date(d2);
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
+
+  const formatDateSeparator = (dateString) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const msgDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    if (msgDate.getTime() === today.getTime()) {
+      return "Hoy";
+    } else if (msgDate.getTime() === yesterday.getTime()) {
+      return "Ayer";
+    } else if (msgDate.getFullYear() === now.getFullYear()) {
+      return d.toLocaleDateString("es-ES", { day: "numeric", month: "long" });
+    } else {
+      return d.toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+    }
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", hour12: true });
+  };
+
+  const renderMensaje = ({ item, index }) => {
     // Verificar si es mío
     const isMine = item.emisor_id === usuario.id;
 
+    // Verificar si debemos mostrar el separador de fecha arriba del mensaje
+    // En FlatList inverted, mensajes[index + 1] es el mensaje previo (más antiguo).
+    const prevMsg = mensajes[index + 1];
+    const showDateSeparator =
+      item.fecha_envio &&
+      (!prevMsg || !prevMsg.fecha_envio || !isSameDay(item.fecha_envio, prevMsg.fecha_envio));
+
     return (
-      <View
-        style={{
-          alignSelf: isMine ? "flex-end" : "flex-start",
-          maxWidth: "80%",
-          padding: 12,
-          borderRadius: 16,
-          marginBottom: 8,
-          backgroundColor: isMine
-            ? "#4f46e5"
-            : isDarkMode
-              ? "#262626"
-              : "#ffffff",
-          borderBottomRightRadius: isMine ? 0 : 16,
-          borderBottomLeftRadius: isMine ? 16 : 0,
-        }}
-      >
-        {/* Mostrar remitente si es de grupo y no soy yo */}
-        {(type === "equipo" || type === "campeonato") && !isMine && (
-          <Text
-            style={{
-              fontSize: 11,
-              color: isDarkMode ? "#a3a3a3" : "#6b7280",
-              marginBottom: 2,
-              fontWeight: "600",
-            }}
-          >
-            {item.emisor_nombre || "Usuario"}
-          </Text>
+      <View style={{ width: "100%" }}>
+        {showDateSeparator && (
+          <View style={{ alignItems: "center", marginVertical: 12 }}>
+            <View
+              style={{
+                backgroundColor: isDarkMode ? "#262626" : "#e5e7eb",
+                paddingHorizontal: 12,
+                paddingVertical: 5,
+                borderRadius: 12,
+                elevation: 1,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 1,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: "600",
+                  color: isDarkMode ? "#d4d4d4" : "#4b5563",
+                }}
+              >
+                {formatDateSeparator(item.fecha_envio)}
+              </Text>
+            </View>
+          </View>
         )}
-        <Text
+
+        <View
           style={{
-            fontSize: 15,
-            color: isMine ? "white" : isDarkMode ? "#ffffff" : "#111827",
+            alignSelf: isMine ? "flex-end" : "flex-start",
+            maxWidth: "80%",
+            paddingHorizontal: 12,
+            paddingTop: 10,
+            paddingBottom: 6,
+            borderRadius: 16,
+            marginBottom: 8,
+            backgroundColor: isMine
+              ? "#4f46e5"
+              : isDarkMode
+                ? "#262626"
+                : "#ffffff",
+            borderBottomRightRadius: isMine ? 0 : 16,
+            borderBottomLeftRadius: isMine ? 16 : 0,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 2,
+            elevation: 1,
           }}
         >
-          {item.mensaje}
-        </Text>
+          {/* Mostrar remitente si es de grupo y no soy yo */}
+          {(type === "equipo" || type === "campeonato") && !isMine && (
+            <Text
+              style={{
+                fontSize: 11,
+                color: isDarkMode ? "#a3a3a3" : "#6b7280",
+                marginBottom: 2,
+                fontWeight: "600",
+              }}
+            >
+              {item.emisor_nombre || "Usuario"}
+            </Text>
+          )}
+          <Text
+            style={{
+              fontSize: 15,
+              color: isMine ? "white" : isDarkMode ? "#ffffff" : "#111827",
+            }}
+          >
+            {item.mensaje}
+          </Text>
+          {item.fecha_envio && (
+            <Text
+              style={{
+                fontSize: 10,
+                color: isMine
+                  ? "rgba(255, 255, 255, 0.75)"
+                  : isDarkMode
+                    ? "#a3a3a3"
+                    : "#9ca3af",
+                alignSelf: "flex-end",
+                marginTop: 4,
+                marginLeft: 12,
+              }}
+            >
+              {formatTime(item.fecha_envio)}
+            </Text>
+          )}
+        </View>
       </View>
     );
   };
