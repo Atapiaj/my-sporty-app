@@ -33,13 +33,13 @@ const Drawer = createDrawerNavigator();
 const headerTitle = (title, description, actionable) => (
   <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
     <View style={{ width: actionable ? '75%' : '100%' }}>
-      <Text 
+      <Text
         style={{ fontSize: 18, fontWeight: '700' }}
         className="text-gray-900 dark:text-gray-100"
       >
         {title}
       </Text>
-      <Text 
+      <Text
         style={{ fontSize: 14 }}
         className="text-gray-600 dark:text-gray-400"
       >
@@ -94,7 +94,7 @@ export default function DrawerNavigator() {
       screenOptions={{
         sceneContainerStyle: { backgroundColor: isDarkMode ? "#171717" : "#f9fafb" },
         drawerStyle: {
-         backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
+          backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
         },
         headerStyle: {
           backgroundColor: isDarkMode ? "#171717" : "#f9fafb",
@@ -118,29 +118,26 @@ export default function DrawerNavigator() {
               "Inicio",
               "Explora los campeonatos públicos disponibles",
               () => (
-                             <Pressable
-                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
-                    onPress={async () => await refreshCampeonatosPublicos()}
-                    disabled={loading}
-                  >
-                    <Ionicons name="reload" size={25} color="#3b82f6" />
-                  </Pressable>             
+                <Pressable
+                  className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                  onPress={async () => await refreshCampeonatosPublicos()}
+                  disabled={loading}
+                >
+                  <Ionicons name="reload" size={25} color="#3b82f6" />
+                </Pressable>
               ),
             ),
         }}
       />
       <Drawer.Screen
-        name="Configuración"
-        component={ConfiguracionScreen}
+        name="Perfil"
+        component={PerfilScreen}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
           headerTitle: () =>
-            headerTitle(
-              "Configuración",
-              "Personaliza tu experiencia en la aplicación",
-            ),
+            headerTitle("Perfil", "Visualiza y edita tu información personal"),
         }}
       />
       <Drawer.Screen
@@ -180,14 +177,14 @@ export default function DrawerNavigator() {
             headerTitle(
               "Calendario",
               "Visualiza tus eventos y fechas importantes",
-                   () => (
-                             <Pressable
-                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
-                    onPress={async () => await refreshCampeonatosPublicos()}
-                    disabled={loading}
-                  >
-                    <Ionicons name="reload" size={25} color="#3b82f6" />
-                  </Pressable>             
+              () => (
+                <Pressable
+                  className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                  onPress={async () => await refreshCampeonatosPublicos()}
+                  disabled={loading}
+                >
+                  <Ionicons name="reload" size={25} color="#3b82f6" />
+                </Pressable>
               ),
             ),
         }}
@@ -255,28 +252,31 @@ export default function DrawerNavigator() {
             headerTitle(
               "Notificaciones",
               "Mantente al día con las novedades de tus campeonatos",
-                () => (
-                             <Pressable
-                    className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
-                    onPress={async () => await refreshNotificaciones()}
-                    disabled={NotificacionesLoading}
-                  >
-                    <Ionicons name="reload" size={25} color="#3b82f6" />
-                  </Pressable>             
+              () => (
+                <Pressable
+                  className={`p-3 float-left flex-row gap-3 w-fit bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 items-center ${loading ? "opacity-50" : "opacity-100"}`}
+                  onPress={async () => await refreshNotificaciones()}
+                  disabled={NotificacionesLoading}
+                >
+                  <Ionicons name="reload" size={25} color="#3b82f6" />
+                </Pressable>
               ),
             ),
-            
+
         }}
       />
       <Drawer.Screen
-        name="Perfil"
-        component={PerfilScreen}
+        name="Configuración"
+        component={ConfiguracionScreen}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Ionicons name="settings-outline" size={size} color={color} />
           ),
           headerTitle: () =>
-            headerTitle("Perfil", "Visualiza y edita tu información personal"),
+            headerTitle(
+              "Configuración",
+              "Personaliza tu experiencia en la aplicación",
+            ),
         }}
       />
     </Drawer.Navigator>

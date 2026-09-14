@@ -39,7 +39,7 @@ const EmptyBox = ({ text }) => (
 );
 
 // ─── Helper: Action Buttons ────────────────────────────────────────────
-const ActionRow = ({ onAccept, onReject }) => (
+const ActionRow = ({ onAccept, onReject, isDarkMode }) => (
   <View className="flex-row mt-4 gap-3">
     <TouchableOpacity
       style={{ flex: 1, paddingVertical: 12, backgroundColor: '#2563eb', borderRadius: 16, alignItems: 'center', shadowColor: '#93c5fd', shadowOpacity: 0.4, shadowRadius: 4, elevation: 3 }}
@@ -48,10 +48,10 @@ const ActionRow = ({ onAccept, onReject }) => (
       <Text className="text-white text-sm font-black">Aceptar</Text>
     </TouchableOpacity>
     <TouchableOpacity
-      style={{ flex: 1, paddingVertical: 12, backgroundColor: isDarkMode ? '#450a0a' : '#fef2f2', borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: isDarkMode ? '#991b1b' : '#fee2e2' }}
+      style={{ flex: 1, paddingVertical: 12, backgroundColor: isDarkMode ? '#831717ff' : '#ce3b3bff', borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: isDarkMode ? '#991b1b' : '#cf0505ff' }}
       onPress={onReject}
     >
-      <Text className="text-red-600 dark:text-red-400 text-sm font-black">Rechazar</Text>
+      <Text className="text-white dark:text-red-400 font-bold text-sm">Rechazar</Text>
     </TouchableOpacity>
   </View>
 );
@@ -100,12 +100,12 @@ export default function NotificacionesScreen() {
     setLoadingUnion(false);
   }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
 
-  
+
   React.useEffect(() => {
     loadAll();
   }, []);
 
-  
+
   const totalPending =
     (solicitudes?.length || 0) +
     (invitaciones?.length || 0) +
@@ -123,12 +123,12 @@ export default function NotificacionesScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
       <ScrollView style={{ flex: 1 }} className="px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
-   
+
 
         {totalPending === 0 && !isLoading && !loadingUnion && (
           <View className="items-center mt-12 py-10 px-8 bg-white dark:bg-neutral-800 rounded-[40px] shadow-sm shadow-blue-100 dark:shadow-none">
             <View className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/30 items-center justify-center mb-4">
-               <Ionicons name="checkmark-done" size={32} color="#3B82F6" />
+              <Ionicons name="checkmark-done" size={32} color="#3B82F6" />
             </View>
             <Text className="text-lg font-black text-gray-900 dark:text-white">¡Todo al día!</Text>
             <Text className="text-xs text-gray-500 dark:text-neutral-400 mt-2 text-center leading-relaxed">No tienes notificaciones pendientes en este momento. Revisa más tarde.</Text>
@@ -146,6 +146,7 @@ export default function NotificacionesScreen() {
             date={item.fecha_envio}
           >
             <ActionRow
+              isDarkMode={isDarkMode}
               onAccept={async () => { await responderSolicitud(item.id, 'aceptado'); await cargarSolicitudes(); await cargarAmigos(); }}
               onReject={async () => { await responderSolicitud(item.id, 'rechazado'); await cargarSolicitudes(); }}
             />
@@ -163,6 +164,7 @@ export default function NotificacionesScreen() {
             date={item.fecha_envio}
           >
             <ActionRow
+              isDarkMode={isDarkMode}
               onAccept={async () => { await responderInvitacion(item.id, 'aceptado'); await cargarInvitaciones(); }}
               onReject={async () => { await responderInvitacion(item.id, 'rechazado'); await cargarInvitaciones(); }}
             />
@@ -180,6 +182,7 @@ export default function NotificacionesScreen() {
             date={item.fecha_envio}
           >
             <ActionRow
+              isDarkMode={isDarkMode}
               onAccept={async () => { await responderInvitacionCampeonato(item.id, 'aceptado'); await cargarInvitacionesCampeonatos(); }}
               onReject={async () => { await responderInvitacionCampeonato(item.id, 'rechazado'); await cargarInvitacionesCampeonatos(); }}
             />
@@ -201,6 +204,7 @@ export default function NotificacionesScreen() {
             date={item.fecha_envio}
           >
             <ActionRow
+              isDarkMode={isDarkMode}
               onAccept={async () => {
                 await responderInvitacionCampeonato(item.id, 'aceptado');
                 const data = await getSolicitudesUnionCampeonatoService();

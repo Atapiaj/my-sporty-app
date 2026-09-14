@@ -16,8 +16,8 @@ const SettingItem = ({ icon, label, description, value, onValueChange, showSwitc
       </View>
     </View>
     {showSwitch && (
-      <Switch 
-        value={value} 
+      <Switch
+        value={value}
         onValueChange={onValueChange}
         trackColor={{ false: "#D1D5DB", true: "#1D4ED8" }}
         thumbColor="#FFFFFF"
@@ -34,29 +34,29 @@ export default function ConfiguracionScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
       <ScrollView style={{ flex: 1 }} className="px-4 pt-6">
-       
+
 
         <View className="my-6">
           <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-3 ml-1">
             Preferencias
           </Text>
-          <SettingItem 
-            icon="notifications-outline" 
-            label="Notificaciones" 
+          <SettingItem
+            icon="notifications-outline"
+            label="Notificaciones"
             description="Recibe alertas de tus partidos y equipos"
-            value={notificaciones} 
-            onValueChange={setNotificaciones} 
+            value={notificaciones}
+            onValueChange={setNotificaciones}
           />
-          <SettingItem 
-            icon="moon-outline" 
-            label="Modo Oscuro" 
+          <SettingItem
+            icon="moon-outline"
+            label="Modo Oscuro"
             description="Activa el tema oscuro para mayor descanso visual"
-            value={isDarkMode} 
-            onValueChange={toggleTema} 
+            value={isDarkMode}
+            onValueChange={toggleTema}
           />
         </View>
 
-        <View className="mb-6">
+        {/* <View className="mb-6">
           <Text className="text-xs font-bold text-gray-400 dark:text-neutral-500 uppercase tracking-widest mb-3 ml-1">
             Cuenta
           </Text>
@@ -75,10 +75,10 @@ export default function ConfiguracionScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#dc2626" />
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <View className="items-center mt-4 mb-10">
-          <Text className="text-xs text-gray-400 dark:text-neutral-500">Versión 1.3.0</Text>
+          <Text className="text-xs text-gray-400 dark:text-neutral-500">Versión 0.8</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

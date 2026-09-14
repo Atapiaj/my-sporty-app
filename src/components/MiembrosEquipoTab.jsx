@@ -28,7 +28,7 @@ const ROL_COLORS = {
   arbitro: "#ef4444",
 };
 
-export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEnabled = true }) {
+export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEnabled = true, isDarkMode }) {
   const navigation = useNavigation();
   const [miembros, setMiembros] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [updatingRole, setUpdatingRole] = useState(false);
-  
+
   const [filtroRol, setFiltroRol] = useState("todos");
   const rolesDisponibles = ["todos", "capitan", "jugador", "suplente"];
 
@@ -88,8 +88,8 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
       `¿Estás seguro de que quieres eliminar a ${selectedMember.usuario_nombre} del equipo?`,
       [
         { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Eliminar", 
+        {
+          text: "Eliminar",
           style: "destructive",
           onPress: async () => {
             try {
@@ -169,12 +169,12 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
                 onPress={() => setFiltroRol(rol)}
                 style={{
                   paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20,
-                  backgroundColor: isActive ? "#4f46e5" : "#f3f4f6",
-                  borderWidth: 1, borderColor: isActive ? "#4f46e5" : "#e5e7eb",
+                  backgroundColor: isActive ? "#4f46e5" : isDarkMode ? "#262626" : "#f3f4f6",
+                  borderWidth: 1, borderColor: isActive ? "#4f46e5" : isDarkMode ? "#404040" : "#e5e7eb",
                 }}
               >
                 <Text style={{
-                  color: isActive ? "#ffffff" : "#4b5563",
+                  color: isActive ? "#ffffff" : isDarkMode ? "#e5e7eb" : "#4b5563",
                   fontSize: 12, fontWeight: "600", textTransform: "capitalize"
                 }}>
                   {rol}
@@ -188,127 +188,127 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
       {miembros
         .filter(m => filtroRol === "todos" || (m.rol_usuario || "jugador") === filtroRol)
         .map((m) => {
-        const esCreador = m.usuario_id === propietarioId;
-        const rol = m.rol_usuario || "jugador";
-        const color = ROL_COLORS[rol] || "#6366f1";
-        const icon = ROL_ICONS[rol] || "person-outline";
-        const iniciales = (m.usuario_nombre || "?")
-          .split(" ")
-          .map((w) => w[0])
-          .join("")
-          .toUpperCase()
-          .slice(0, 2);
+          const esCreador = m.usuario_id === propietarioId;
+          const rol = m.rol_usuario || "jugador";
+          const color = ROL_COLORS[rol] || "#6366f1";
+          const icon = ROL_ICONS[rol] || "person-outline";
+          const iniciales = (m.usuario_nombre || "?")
+            .split(" ")
+            .map((w) => w[0])
+            .join("")
+            .toUpperCase()
+            .slice(0, 2);
 
-        return (
-          <TouchableOpacity
-            key={m.id}
-            onPress={() => {
-              navigation.push('MiembroPerfil', {
-                usuarioPerfil: {
-                  id: m.usuario_id,
-                  nombre: m.usuario_nombre,
-                  correo: m.correo,
-                  rol: m.rol_usuario
-                }
-              });
-            }}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 16,
-              padding: 14,
-              marginBottom: 10,
-              flexDirection: "row",
-              alignItems: "center",
-              shadowColor: "#000",
-              shadowOpacity: 0.04,
-              shadowRadius: 6,
-              elevation: 2,
-            }}
-          >
-            {/* Avatar */}
-            <View style={{
-              width: 46, height: 46, borderRadius: 23,
-              backgroundColor: color + "22",
-              alignItems: "center", justifyContent: "center",
-              marginRight: 14,
-            }}>
-              <Text style={{ color, fontWeight: "800", fontSize: 16 }}>{iniciales}</Text>
-            </View>
+          return (
+            <TouchableOpacity
+              key={m.id}
+              onPress={() => {
+                navigation.push('MiembroPerfil', {
+                  usuarioPerfil: {
+                    id: m.usuario_id,
+                    nombre: m.usuario_nombre,
+                    correo: m.correo,
+                    rol: m.rol_usuario
+                  }
+                });
+              }}
+              style={{
+                backgroundColor: isDarkMode ? "#262626" : "white",
+                borderRadius: 16,
+                padding: 14,
+                marginBottom: 10,
+                flexDirection: "row",
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOpacity: 0.04,
+                shadowRadius: 6,
+                elevation: 2,
+              }}
+            >
+              {/* Avatar */}
+              <View style={{
+                width: 46, height: 46, borderRadius: 23,
+                backgroundColor: color + "22",
+                alignItems: "center", justifyContent: "center",
+                marginRight: 14,
+              }}>
+                <Text style={{ color, fontWeight: "800", fontSize: 16 }}>{iniciales}</Text>
+              </View>
 
-            {/* Info */}
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <Text style={{ fontWeight: "700", fontSize: 15, color: "#111827" }}>
-                  {m.usuario_nombre || "Sin nombre"}
-                </Text>
-                {esCreador && (
-                  <View style={{
-                    backgroundColor: "#fef3c7", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
-                    flexDirection: "row", alignItems: "center", gap: 4,
-                  }}>
-                    <Ionicons name="shield-checkmark" size={11} color="#d97706" />
-                    <Text style={{ color: "#d97706", fontSize: 10, fontWeight: "800" }}>Creador</Text>
-                  </View>
+              {/* Info */}
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <Text style={{ fontWeight: "700", fontSize: 15, color: isDarkMode ? "#6366f1" : "#111827" }}>
+                    {m.usuario_nombre || "Sin nombre"}
+                  </Text>
+                  {esCreador && (
+                    <View style={{
+                      backgroundColor: "#fef3c7", borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
+                      flexDirection: "row", alignItems: "center", gap: 4,
+                    }}>
+                      <Ionicons name="shield-checkmark" size={11} color="#d97706" />
+                      <Text style={{ color: "#d97706", fontSize: 10, fontWeight: "800" }}>Creador</Text>
+                    </View>
+                  )}
+                </View>
+                {m.correo && (
+                  <Text style={{ color: "#9ca3af", fontSize: 12, marginTop: 2 }}>{m.correo}</Text>
                 )}
               </View>
-              {m.correo && (
-                <Text style={{ color: "#9ca3af", fontSize: 12, marginTop: 2 }}>{m.correo}</Text>
-              )}
-            </View>
 
-            {/* Rol badge */}
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <View style={{
-                alignItems: "center", justifyContent: "center",
-                backgroundColor: color + "15", borderRadius: 12,
-                paddingHorizontal: 10, paddingVertical: 6, gap: 2,
-                marginRight: isOwner && !esCreador ? 8 : 0,
-              }}>
-                <Ionicons name={icon} size={16} color={color} />
-                <Text style={{ color, fontSize: 9, fontWeight: "700", textTransform: "uppercase" }}>
-                  {rol}
-                </Text>
+              {/* Rol badge */}
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={{
+                  alignItems: "center", justifyContent: "center",
+                  backgroundColor: color + "15", borderRadius: 12,
+                  paddingHorizontal: 10, paddingVertical: 6, gap: 2,
+                  marginRight: isOwner && !esCreador ? 8 : 0,
+                }}>
+                  <Ionicons name={icon} size={16} color={color} />
+                  <Text style={{ color, fontSize: 9, fontWeight: "700", textTransform: "uppercase" }}>
+                    {rol}
+                  </Text>
+                </View>
+                {isOwner && !esCreador && (
+                  <TouchableOpacity
+                    style={{ padding: 6, backgroundColor: isDarkMode ? "#262626" : '#f3f4f6', borderRadius: 8 }}
+                    onPress={() => {
+                      setSelectedMember(m);
+                      setModalVisible(true);
+                    }}
+                  >
+                    <Ionicons name="create-outline" size={18} color={isDarkMode ? "#e5e7eb" : "#6b7280"} />
+                  </TouchableOpacity>
+                )}
               </View>
-              {isOwner && !esCreador && (
-                <TouchableOpacity
-                  style={{ padding: 6, backgroundColor: '#f3f4f6', borderRadius: 8 }}
-                  onPress={() => {
-                    setSelectedMember(m);
-                    setModalVisible(true);
-                  }}
-                >
-                  <Ionicons name="create-outline" size={18} color="#6b7280" />
-                </TouchableOpacity>
-              )}
-            </View>
-          </TouchableOpacity>
-        );
-      })}
+            </TouchableOpacity>
+          );
+        })}
 
       {/* Modal para opciones del miembro */}
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: 20 }}>
-          <View style={{ backgroundColor: "white", borderRadius: 16, width: "100%", padding: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16, textAlign: "center" }}>
+          <View style={{ backgroundColor: isDarkMode ? "#171717" : "white", borderRadius: 16, width: "100%", padding: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16, textAlign: "center", color: isDarkMode ? "white" : "black" }}>
               Opciones para {selectedMember?.usuario_nombre}
             </Text>
-            
+
             {updatingRole ? (
               <ActivityIndicator size="large" color="#4f46e5" style={{ marginVertical: 20 }} />
             ) : (
               <>
-                <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 8, fontWeight: "600", marginLeft: 4 }}>Cambiar rol</Text>
+                <Text style={{ fontSize: 14, color: isDarkMode ? "#9ca3af" : "#6b7280", marginBottom: 8, fontWeight: "600", marginLeft: 4 }}>Cambiar rol</Text>
                 {["jugador", "capitan", "suplente"].map(role => (
-                   <TouchableOpacity
-                     key={role}
-                     style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: "#f3f4f6", flexDirection: "row", alignItems: "center" }}
-                     onPress={() => handleCambiarRol(role)}
-                   >
-                     <Ionicons name={ROL_ICONS[role] || "person-outline"} size={20} color={ROL_COLORS[role] || "#6366f1"} style={{ marginRight: 12 }} />
-                     <Text style={{ fontSize: 16, textTransform: "capitalize", color: "#374151", fontWeight: "600" }}>{role}</Text>
-                   </TouchableOpacity>
+                  <TouchableOpacity
+                    key={role}
+                    style={{ padding: 12, borderBottomWidth: 1, borderBottomColor: "#f3f4f6", flexDirection: "row", alignItems: "center" }}
+                    onPress={() => handleCambiarRol(role)}
+                  >
+                    <Ionicons name={ROL_ICONS[role] || "person-outline"} size={20} color={ROL_COLORS[role] || "#6366f1"} style={{ marginRight: 12 }} />
+                    <Text style={{ fontSize: 16, textTransform: "capitalize", color: isDarkMode ? "#9ca3af" : "#374151", fontWeight: "600" }}>{role}</Text>
+                  </TouchableOpacity>
                 ))}
-                
+
                 <TouchableOpacity
                   style={{ marginTop: 16, padding: 14, backgroundColor: "#fee2e2", borderRadius: 8, alignItems: "center", flexDirection: "row", justifyContent: "center" }}
                   onPress={handleEliminarMiembro}
@@ -318,10 +318,10 @@ export default function MiembrosEquipoTab({ equipo, equipoId, isOwner, scrollEna
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={{ marginTop: 12, padding: 14, backgroundColor: "#f3f4f6", borderRadius: 8, alignItems: "center" }}
+                  style={{ marginTop: 12, padding: 14, backgroundColor: isDarkMode ? "#262626" : "#f3f4f6", borderRadius: 8, alignItems: "center" }}
                   onPress={() => setModalVisible(false)}
                 >
-                  <Text style={{ fontWeight: "600", color: "#4b5563" }}>Cancelar</Text>
+                  <Text style={{ fontWeight: "600", color: isDarkMode ? "#9ca3af" : "#4b5563" }}>Cancelar</Text>
                 </TouchableOpacity>
               </>
             )}

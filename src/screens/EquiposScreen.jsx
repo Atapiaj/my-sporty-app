@@ -18,9 +18,9 @@ const SPORT_ICONS = {
 const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
   const iconName = SPORT_ICONS[item.deporte?.toLowerCase()] || "shield-outline";
   const { isDarkMode } = useContext(ThemeContext);
-  
+
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
       style={{
@@ -61,7 +61,7 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
 
       {isOwner && (
         <View className="flex-row mt-2 pt-3 border-t border-gray-50 dark:border-neutral-700 gap-2">
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={onEdit}
             style={{
               flex: 1, flexDirection: 'row', alignItems: 'center',
@@ -74,7 +74,7 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
             <Ionicons name="create-outline" size={16} color={isDarkMode ? '#93c5fd' : '#1D4ED8'} />
             <Text className="text-blue-700 dark:text-blue-400 font-bold ml-1.5 text-xs">Editar</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={onInvite}
             style={{
               flex: 1, flexDirection: 'row', alignItems: 'center',
@@ -85,9 +85,9 @@ const TeamCard = ({ item, isOwner, onEdit, onInvite, onDelete, onPress }) => {
             }}
           >
             <Ionicons name="person-add-outline" size={16} color={isDarkMode ? '#86efac' : '#16A34A'} />
-            <Text className="text-green-700 dark:text-green-400 font-bold ml-1.5 text-xs">Invitar</Text>
+            <Text className="text-[#16A34A] dark:text-[#86efac] font-bold ml-1.5 text-xs">Invitar</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={onDelete}
             style={{
               backgroundColor: isDarkMode ? '#450a0a' : '#fef2f2',
@@ -149,7 +149,7 @@ export default function EquiposScreen({ navigation }) {
             <ActivityIndicator color="#1D4ED8" size="large" />
           </View>
         ) : (
-          <ScrollView 
+          <ScrollView
             className="flex-1"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 120 }}
@@ -162,10 +162,10 @@ export default function EquiposScreen({ navigation }) {
               </View>
             ) : (
               yourTeams.map(item => (
-                <TeamCard 
-                  key={item.id} 
-                  item={item} 
-                  isOwner={true} 
+                <TeamCard
+                  key={item.id}
+                  item={item}
+                  isOwner={true}
                   onEdit={() => navigation.navigate('EditarEquipoScreen', { equipo: item })}
                   onInvite={() => navigation.navigate('InvitacionEquipoScreen', { equipoId: item.id })}
                   onDelete={() => confirmarEliminar(item.id)}
@@ -182,10 +182,10 @@ export default function EquiposScreen({ navigation }) {
               </View>
             ) : (
               otherTeams.map(item => (
-                <TeamCard 
-                  key={item.id} 
-                  item={item} 
-                  isOwner={false} 
+                <TeamCard
+                  key={item.id}
+                  item={item}
+                  isOwner={false}
                   onPress={() => navigation.navigate('DetalleEquipoScreen', { equipo: item, isOwner: false })}
                 />
               ))

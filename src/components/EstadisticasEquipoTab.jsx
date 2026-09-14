@@ -74,7 +74,7 @@ const getSportConfig = (deporte) => {
 
 // ────────────────────────────────────────────────────────────────────────────
 
-export default function EstadisticasEquipoTab({ equipoId, deporte }) {
+export default function EstadisticasEquipoTab({ equipoId, deporte, isDarkMode }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeChart, setActiveChart] = useState("pie");
@@ -128,8 +128,8 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
     const icons = ["trophy-outline", "remove-outline", "close-circle-outline"];
 
     return (
-      <View style={{ backgroundColor: "white", borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-        <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 16, fontSize: 15 }}>
+      <View style={{ backgroundColor: isDarkMode ? "#262626" : "white", borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+        <Text style={{ fontWeight: "700", color: isDarkMode ? "#9ca3af" : "#111827", marginBottom: 16, fontSize: 15 }}>
           Distribución de Resultados
         </Text>
         <View style={{ flexDirection: "row", height: 28, borderRadius: 14, overflow: "hidden", marginBottom: 20 }}>
@@ -145,8 +145,8 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: colors[i] + "22", alignItems: "center", justifyContent: "center", marginBottom: 6 }}>
                 <Ionicons name={icons[i]} size={18} color={colors[i]} />
               </View>
-              <Text style={{ fontWeight: "800", fontSize: 20, color: "#111827" }}>{val}</Text>
-              <Text style={{ fontSize: 10, color: "#6b7280", fontWeight: "600" }}>{labels[i]}</Text>
+              <Text style={{ fontWeight: "800", fontSize: 20, color: isDarkMode ? "#9ca3af" : "#111827" }}>{val}</Text>
+              <Text style={{ fontSize: 10, color: isDarkMode ? "#9ca3af" : "#6b7280", fontWeight: "600" }}>{labels[i]}</Text>
               <Text style={{ fontSize: 10, color: colors[i], fontWeight: "700" }}>
                 {total > 0 ? ((val / total) * 100).toFixed(0) : 0}%
               </Text>
@@ -171,11 +171,11 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
     const BAR_MAX_H = 90;
 
     return (
-      <View style={{ backgroundColor: "white", borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-        <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 4, fontSize: 15 }}>
+      <View style={{ backgroundColor: isDarkMode ? "#262626" : "white", borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+        <Text style={{ fontWeight: "700", color: isDarkMode ? "#9ca3af" : "#111827", marginBottom: 4, fontSize: 15 }}>
           {cfg.chartLinea}
         </Text>
-        <Text style={{ color: "#9ca3af", fontSize: 11, marginBottom: 16 }}>
+        <Text style={{ color: isDarkMode ? "#9ca3af" : "#6b7280", fontSize: 11, marginBottom: 16 }}>
           Últimos {data.length} partidos
         </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -186,7 +186,7 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
                   <View style={{ width: 14, height: Math.max(4, ((d.gf || 0) / maxVal) * BAR_MAX_H), backgroundColor: "#10b981", borderRadius: 4 }} />
                   <View style={{ width: 14, height: Math.max(4, ((d.gc || 0) / maxVal) * BAR_MAX_H), backgroundColor: "#ef4444", borderRadius: 4 }} />
                 </View>
-                <Text style={{ fontSize: 9, color: "#9ca3af", marginTop: 4 }}>{d.label || `M${i + 1}`}</Text>
+                <Text style={{ fontSize: 9, color: isDarkMode ? "#9ca3af" : "#6b7280", marginTop: 4 }}>{d.label || `M${i + 1}`}</Text>
               </View>
             ))}
           </View>
@@ -194,11 +194,11 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 20 }}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <View style={{ width: 12, height: 12, borderRadius: 3, backgroundColor: "#10b981", marginRight: 6 }} />
-            <Text style={{ fontSize: 11, color: "#6b7280" }}>{cfg.favorCorto} – {cfg.favor}</Text>
+            <Text style={{ fontSize: 11, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{cfg.favorCorto} – {cfg.favor}</Text>
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <View style={{ width: 12, height: 12, borderRadius: 3, backgroundColor: "#ef4444", marginRight: 6 }} />
-            <Text style={{ fontSize: 11, color: "#6b7280" }}>{cfg.contraCorto} – {cfg.contra}</Text>
+            <Text style={{ fontSize: 11, color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{cfg.contraCorto} – {cfg.contra}</Text>
           </View>
         </View>
       </View>
@@ -211,10 +211,10 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
     return (
       <View style={{ marginBottom: 16 }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-          <Text style={{ fontSize: 12, fontWeight: "600", color: "#374151" }}>{label}</Text>
-          <Text style={{ fontSize: 12, fontWeight: "800", color: "#111827" }}>{pct}%</Text>
+          <Text style={{ fontSize: 12, fontWeight: "600", color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{label}</Text>
+          <Text style={{ fontSize: 12, fontWeight: "800", color: isDarkMode ? "#9ca3af" : "#6b7280" }}>{pct}%</Text>
         </View>
-        <View style={{ height: 8, backgroundColor: "#f3f4f6", borderRadius: 999, overflow: "hidden" }}>
+        <View style={{ height: 8, backgroundColor: isDarkMode ? "#9ca3af" : "#f3f4f6", borderRadius: 999, overflow: "hidden" }}>
           <View style={{ height: 8, width: `${pct}%`, backgroundColor: color, borderRadius: 999 }} />
         </View>
       </View>
@@ -224,8 +224,8 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
   const renderProgress = () => {
     const pj = stats.pj || 1;
     return (
-      <View style={{ backgroundColor: "white", borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
-        <Text style={{ fontWeight: "700", color: "#111827", marginBottom: 16, fontSize: 15 }}>
+      <View style={{ backgroundColor: isDarkMode ? "#262626" : "white", borderRadius: 20, padding: 20, marginBottom: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+        <Text style={{ fontWeight: "700", color: isDarkMode ? "#9ca3af" : "#111827", marginBottom: 16, fontSize: 15 }}>
           Métricas de Rendimiento
         </Text>
         {renderProgressBar("Tasa de Victorias", ((stats.pg / pj) * 100).toFixed(0), "#10b981")}
@@ -258,9 +258,9 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
           <Text style={{ color: "#c7d2fe", fontSize: 11, fontWeight: "600" }}>Rendimiento</Text>
           <Text style={{ color: "white", fontSize: 28, fontWeight: "800" }}>{stats.rendimiento}%</Text>
         </View>
-        <View style={{ flex: 1, backgroundColor: "white", borderRadius: 20, padding: 18, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+        <View style={{ flex: 1, backgroundColor: isDarkMode ? "#262626" : "white", borderRadius: 20, padding: 18, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
           <Text style={{ color: "#9ca3af", fontSize: 11, fontWeight: "600" }}>{cfg.promedio}</Text>
-          <Text style={{ color: "#111827", fontSize: 28, fontWeight: "800" }}>{stats.promedioGoles}</Text>
+          <Text style={{ color: isDarkMode ? "white" : "#111827", fontSize: 28, fontWeight: "800" }}>{stats.promedioGoles}</Text>
         </View>
       </View>
 
@@ -274,7 +274,7 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
           { label: cfg.favorCorto, val: stats.gf, color: "#3b82f6" },
           { label: cfg.contraCorto, val: stats.gc, color: "#9ca3af" },
         ].map((item) => (
-          <View key={item.label} style={{ flex: 1, backgroundColor: "white", borderRadius: 14, padding: 10, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 }}>
+          <View key={item.label} style={{ flex: 1, backgroundColor: isDarkMode ? "#262626" : "white", borderRadius: 14, padding: 10, alignItems: "center", shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 }}>
             <Text style={{ fontSize: 16, fontWeight: "800", color: item.color }}>{item.val}</Text>
             <Text style={{ fontSize: 9, color: "#9ca3af", fontWeight: "700" }}>{item.label}</Text>
           </View>
@@ -297,11 +297,11 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
             style={{
               flexDirection: "row", alignItems: "center",
               paddingHorizontal: 16, paddingVertical: 9, borderRadius: 999, marginRight: 8,
-              backgroundColor: activeChart === c.id ? "#4f46e5" : "#f3f4f6",
+              backgroundColor: activeChart === c.id ? "#4f46e5" : isDarkMode ? "#262626" : "#f3f4f6",
             }}
           >
-            <Ionicons name={c.icon} size={14} color={activeChart === c.id ? "#fff" : "#6b7280"} />
-            <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: "700", color: activeChart === c.id ? "#fff" : "#6b7280" }}>
+            <Ionicons name={c.icon} size={14} color={activeChart === c.id ? "#fff" : isDarkMode ? "#9ca3af" : "#6b7280"} />
+            <Text style={{ marginLeft: 6, fontSize: 12, fontWeight: "700", color: activeChart === c.id ? "#fff" : isDarkMode ? "#9ca3af" : "#6b7280" }}>
               {c.label}
             </Text>
           </TouchableOpacity>
@@ -314,7 +314,7 @@ export default function EstadisticasEquipoTab({ equipoId, deporte }) {
 
       {/* Racha */}
       {stats.rachas && stats.rachas.length > 0 && (
-        <View style={{ backgroundColor: "white", borderRadius: 20, padding: 20, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
+        <View style={{ backgroundColor: isDarkMode ? "#262626" : "white", borderRadius: 20, padding: 20, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 }}>
           <Text style={{ color: "#9ca3af", fontSize: 10, fontWeight: "700", textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>
             Última Racha
           </Text>
