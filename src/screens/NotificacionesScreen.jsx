@@ -48,7 +48,7 @@ const ActionRow = ({ onAccept, onReject, isDarkMode }) => (
       <Text className="text-white text-sm font-black">Aceptar</Text>
     </TouchableOpacity>
     <TouchableOpacity
-      style={{ flex: 1, paddingVertical: 12, backgroundColor: isDarkMode ? '#831717ff' : '#ce3b3bff', borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: isDarkMode ? '#991b1b' : '#cf0505ff' }}
+      style={{ flex: 1, paddingVertical: 12, backgroundColor: '#ce3b3bff', borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: isDarkMode ? '#991b1b' : '#cf0505ff' }}
       onPress={onReject}
     >
       <Text className="text-white dark:text-red-400 font-bold text-sm">Rechazar</Text>
