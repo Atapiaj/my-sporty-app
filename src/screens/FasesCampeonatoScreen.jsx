@@ -302,7 +302,8 @@ const agregarFase = () => {
     })
     .catch(error => {
       console.error('Error creando fase:', error);
-      alert('Hubo un error al agregar la fase.');
+      const msg = error?.response?.data?.message || 'Hubo un error al agregar la fase.';
+      alert(msg);
     });
 };
 
@@ -534,110 +535,220 @@ const eliminarFase = (idFase) => {
           transparent
           onRequestClose={() => setModalVisible(false)}
         >
-          <View className="flex-1 bg-black/40 dark:bg-black/60 justify-center items-center">
-            <View className="w-[90%] bg-white dark:bg-neutral-800 rounded-xl p-6 elevation-0 border dark:border-neutral-700">
-              <Text className="text-[15px] font-semibold mt-4 mb-2 text-[#1a1a1a] dark:text-white">Agregar nueva fase:</Text>
-              <TextInput
-                className="border border-[#eaeaea] dark:border-neutral-600 rounded-md p-2.5 mb-3 bg-[#fafafa] dark:bg-neutral-900 text-sm text-[#1a1a1a] dark:text-white"
-                value={nuevaFase}
-                onChangeText={setNuevaFase}
-                placeholder="Nombre de la fase"
-                placeholderTextColor="#8a8a8a"
-              />
-              <View className="flex-row justify-around mb-4">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+            <View style={{
+              backgroundColor: isDarkMode ? '#1c1c1e' : '#ffffff',
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              paddingHorizontal: 20,
+              paddingTop: 12,
+              paddingBottom: 36,
+            }}>
+              {/* Handle bar */}
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: isDarkMode ? '#444' : '#ddd', alignSelf: 'center', marginBottom: 16 }} />
+
+              {/* Header */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <View>
+                  <Text style={{ fontSize: 18, fontWeight: '700', color: isDarkMode ? '#fff' : '#111' }}>Nueva fase</Text>
+                  <Text style={{ fontSize: 12, color: isDarkMode ? '#888' : '#888', marginTop: 2 }}>
+                    {fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes} equipos disponibles
+                  </Text>
+                </View>
                 <TouchableOpacity
-                  style={{
-                    paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
-                    backgroundColor: metodoFase === 'liga' ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : (isDarkMode ? '#262626' : '#f5f5f5'),
-                    borderWidth: 1, borderColor: metodoFase === 'liga' ? (isDarkMode ? '#3b82f6' : '#93c5fd') : (isDarkMode ? '#404040' : '#eaeaea'),
-                  }}
-                  onPress={() => setMetodoFase('liga')}
+                  onPress={() => setModalVisible(false)}
+                  style={{ backgroundColor: isDarkMode ? '#2c2c2e' : '#f2f2f7', borderRadius: 20, padding: 8 }}
                 >
-                  <Text style={{ color: metodoFase === 'liga' ? (isDarkMode ? '#93c5fd' : '#1e40af') : (isDarkMode ? '#e5e5e5' : '#1a1a1a'), fontWeight: '600' }}>Liga</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
-                    backgroundColor: metodoFase === 'eliminatoria' ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : (isDarkMode ? '#262626' : '#f5f5f5'),
-                    borderWidth: 1, borderColor: metodoFase === 'eliminatoria' ? (isDarkMode ? '#3b82f6' : '#93c5fd') : (isDarkMode ? '#404040' : '#eaeaea'),
-                  }}
-                  onPress={() => setMetodoFase('eliminatoria')}
-                >
-                  <Text style={{ color: metodoFase === 'eliminatoria' ? (isDarkMode ? '#93c5fd' : '#1e40af') : (isDarkMode ? '#e5e5e5' : '#1a1a1a'), fontWeight: '600' }}>Eliminatoria</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    paddingHorizontal: 10, paddingVertical: 10, borderRadius: 6, marginHorizontal: 4,
-                    backgroundColor: metodoFase === 'grupos' ? (isDarkMode ? '#1e3a8a' : '#dbeafe') : (isDarkMode ? '#262626' : '#f5f5f5'),
-                    borderWidth: 1, borderColor: metodoFase === 'grupos' ? (isDarkMode ? '#3b82f6' : '#93c5fd') : (isDarkMode ? '#404040' : '#eaeaea'),
-                  }}
-                  onPress={() => setMetodoFase('grupos')}
-                >
-                  <Text style={{ color: metodoFase === 'grupos' ? (isDarkMode ? '#93c5fd' : '#1e40af') : (isDarkMode ? '#e5e5e5' : '#1a1a1a'), fontWeight: '600' }}>Fase de grupos</Text>
+                  <Ionicons name="close" size={18} color={isDarkMode ? '#aaa' : '#555'} />
                 </TouchableOpacity>
               </View>
-              <Button
-                title="Agregar fase"
-                onPress={agregarFase}
-                disabled={
-                  !nuevaFase.trim() ||
-                  !metodoFase ||
-                  (
-                    fases.length === 0
-                      ? campeonato.numero_equipos
-                      : fases[fases.length - 1].equiposRestantes
-                  ) <= 1
-                }
+
+              {/* Nombre input */}
+              <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#888' : '#888', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Nombre de la fase
+              </Text>
+              <TextInput
+                style={{
+                  borderWidth: 1.5,
+                  borderColor: nuevaFase.trim() ? '#4f46e5' : (isDarkMode ? '#333' : '#e5e5e5'),
+                  borderRadius: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 12,
+                  marginBottom: 20,
+                  backgroundColor: isDarkMode ? '#2c2c2e' : '#f9f9f9',
+                  fontSize: 15,
+                  color: isDarkMode ? '#fff' : '#111',
+                }}
+                value={nuevaFase}
+                onChangeText={setNuevaFase}
+                placeholder="Ej: Fase de grupos, Semifinales…"
+                placeholderTextColor={isDarkMode ? '#555' : '#bbb'}
               />
+
+              {/* Método selector */}
+              <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#888' : '#888', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Método de la fase
+              </Text>
+              <View style={{ gap: 10, marginBottom: 20 }}>
+                {[
+                  {
+                    key: 'liga',
+                    icon: 'swap-horizontal-outline',
+                    label: 'Liga',
+                    desc: 'Todos contra todos. Gana quien acumule más puntos.',
+                  },
+                  {
+                    key: 'eliminatoria',
+                    icon: 'git-branch-outline',
+                    label: 'Eliminatoria',
+                    desc: 'Eliminación directa. El perdedor queda fuera.',
+                  },
+                  {
+                    key: 'grupos',
+                    icon: 'grid-outline',
+                    label: 'Fase de grupos',
+                    desc: 'Equipos divididos en grupos. Los mejores clasifican.',
+                  },
+                ].map(({ key, icon, label, desc }) => {
+                  const active = metodoFase === key;
+                  return (
+                    <TouchableOpacity
+                      key={key}
+                      onPress={() => { setMetodoFase(key); setErrorGrupo(''); }}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        padding: 14,
+                        borderRadius: 14,
+                        borderWidth: active ? 2 : 1.5,
+                        borderColor: active ? '#4f46e5' : (isDarkMode ? '#333' : '#e5e5e5'),
+                        backgroundColor: active
+                          ? (isDarkMode ? 'rgba(79,70,229,0.15)' : 'rgba(79,70,229,0.06)')
+                          : (isDarkMode ? '#2c2c2e' : '#fafafa'),
+                      }}
+                    >
+                      <View style={{
+                        width: 40, height: 40, borderRadius: 10,
+                        backgroundColor: active ? '#4f46e5' : (isDarkMode ? '#3a3a3c' : '#ebebeb'),
+                        alignItems: 'center', justifyContent: 'center', marginRight: 14,
+                      }}>
+                        <Ionicons name={icon} size={20} color={active ? '#fff' : (isDarkMode ? '#aaa' : '#666')} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: '700', color: active ? '#4f46e5' : (isDarkMode ? '#fff' : '#111'), marginBottom: 2 }}>
+                          {label}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: isDarkMode ? '#888' : '#888', lineHeight: 17 }}>
+                          {desc}
+                        </Text>
+                      </View>
+                      {active && <Ionicons name="checkmark-circle" size={22} color="#4f46e5" style={{ marginLeft: 8 }} />}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Grupos extra config */}
               {metodoFase === 'grupos' && (
-                <>
-                  <Text className="font-semibold mb-1.5 mt-2 dark:text-neutral-200">
-                    Número de grupos:
+                <View style={{
+                  backgroundColor: isDarkMode ? '#2c2c2e' : '#f4f4f8',
+                  borderRadius: 14,
+                  padding: 14,
+                  marginBottom: 20,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? '#3a3a3c' : '#e5e5e5',
+                }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: isDarkMode ? '#888' : '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 10 }}>
+                    Configuración de grupos
                   </Text>
-                  <View className="border border-[#ccc] dark:border-neutral-600 rounded-md mb-3 pb-1.5 pt-1.5 dark:bg-neutral-900">
+                  <Text style={{ fontSize: 13, color: isDarkMode ? '#ccc' : '#444', marginBottom: 6 }}>Número de grupos</Text>
+                  <View style={{
+                    borderWidth: 1.5, borderColor: isDarkMode ? '#444' : '#ddd',
+                    borderRadius: 10, marginBottom: 12,
+                    backgroundColor: isDarkMode ? '#1c1c1e' : '#fff',
+                    overflow: 'hidden',
+                  }}>
                     <Picker
                       selectedValue={numeroGrupos}
                       onValueChange={(value) => setNumeroGrupos(value)}
-                      style={{ borderWidth:0, color: isDarkMode ? '#ffffff' : '#1a1a1a' }}
-                      dropdownIconColor={isDarkMode ? '#ffffff' : '#1a1a1a'}
+                      style={{ color: isDarkMode ? '#fff' : '#111' }}
+                      dropdownIconColor={isDarkMode ? '#fff' : '#111'}
                     >
-                      <Picker.Item label="Seleccione número de grupos" value="" color={isDarkMode ? '#a3a3a3' : '#1a1a1a'} />
+                      <Picker.Item label="Seleccionar…" value="" color={isDarkMode ? '#888' : '#888'} />
                       {calcularDivisores(
                         fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes
                       )
                         .filter((div) => {
-                          const equiposActuales = fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes;
-                          return div % 2 === 0 && equiposActuales / div >= 2;
+                          const eq = fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes;
+                          return div % 2 === 0 && eq / div >= 2;
                         })
                         .map((div, idx) => (
-                          <Picker.Item key={idx} label={`${div}`} value={div?.toString()} color={isDarkMode ? '#ffffff' : '#1a1a1a'} />
+                          <Picker.Item key={idx} label={`${div} grupos`} value={div?.toString()} color={isDarkMode ? '#fff' : '#111'} />
                         ))}
                     </Picker>
                   </View>
 
                   {numeroGrupos ? (
-                    <Text className="text-sm text-[#6a6a6a] dark:text-neutral-400 mb-2">
-                      Equipos por grupo: {Math.floor((fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes) / parseInt(numeroGrupos, 10))}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 6 }}>
+                      <Ionicons name="people-outline" size={14} color="#4f46e5" />
+                      <Text style={{ fontSize: 13, color: '#4f46e5', fontWeight: '600' }}>
+                        {Math.floor((fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes) / parseInt(numeroGrupos, 10))} equipos por grupo
+                      </Text>
+                    </View>
                   ) : null}
 
+                  <Text style={{ fontSize: 13, color: isDarkMode ? '#ccc' : '#444', marginBottom: 6 }}>Clasificados por grupo</Text>
                   <TextInput
-                    className="border border-[#eaeaea] dark:border-neutral-600 rounded-md p-2.5 mb-3 bg-[#fafafa] dark:bg-neutral-900 text-sm text-[#1a1a1a] dark:text-white"
+                    style={{
+                      borderWidth: 1.5, borderColor: isDarkMode ? '#444' : '#ddd',
+                      borderRadius: 10, paddingHorizontal: 12, paddingVertical: 10,
+                      backgroundColor: isDarkMode ? '#1c1c1e' : '#fff',
+                      fontSize: 15, color: isDarkMode ? '#fff' : '#111',
+                    }}
                     value={clasificadosPorGrupo}
                     onChangeText={setClasificadosPorGrupo}
-                    placeholder="Clasificados por grupo (ej: 2)"
-                    placeholderTextColor="#8a8a8a"
+                    placeholder="Ej: 2"
+                    placeholderTextColor={isDarkMode ? '#555' : '#bbb'}
                     keyboardType="numeric"
                   />
-                  {errorGrupo ? <Text className="text-red-500">{errorGrupo}</Text> : null}
-                </>
+                  {errorGrupo ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 5 }}>
+                      <Ionicons name="warning-outline" size={14} color="#ef4444" />
+                      <Text style={{ color: '#ef4444', fontSize: 12, flex: 1 }}>{errorGrupo}</Text>
+                    </View>
+                  ) : null}
+                </View>
               )}
-              <View className="mt-3">
-                <Button title="Cancelar" color="#888" onPress={() => setModalVisible(false)} />
-              </View>
+
+              {/* Action button */}
+              <TouchableOpacity
+                onPress={agregarFase}
+                disabled={
+                  !nuevaFase.trim() ||
+                  !metodoFase ||
+                  (fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes) <= 1
+                }
+                style={{
+                  backgroundColor:
+                    !nuevaFase.trim() || !metodoFase ||
+                    (fases.length === 0 ? campeonato.numero_equipos : fases[fases.length - 1].equiposRestantes) <= 1
+                      ? (isDarkMode ? '#333' : '#d1d5db')
+                      : '#4f46e5',
+                  borderRadius: 14,
+                  paddingVertical: 15,
+                  alignItems: 'center',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                <Ionicons name="add-circle-outline" size={20} color="#fff" />
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>Agregar fase</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
+
 
         {/* Modal for Inviting Friends / Adding Own Teams */}
         <Modal
