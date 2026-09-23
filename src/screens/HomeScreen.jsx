@@ -60,8 +60,8 @@ export default function HomeScreen({ navigation }) {
     try {
       const res = await getEquiposService();
       const equipos = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
-      // Filter teams by sport
-      const matchingTeams = equipos.filter(e => e.deporte === campeonato.deporte);
+      // Filter teams by sport AND ownership (only team creator/owner can register team)
+      const matchingTeams = equipos.filter(e => e.propietario_id === usuario?.id && e.deporte === campeonato.deporte);
       setMisEquipos(matchingTeams);
     } catch (e) {
       setMisEquipos([]);
@@ -177,8 +177,8 @@ export default function HomeScreen({ navigation }) {
               ) : misEquipos.length === 0 ? (
                 <View className="items-center py-6">
                   <Ionicons name="shield-outline" size={36} color="#aaa" />
-                  <Text className="text-sm text-gray-500 dark:text-neutral-400 mt-2 text-center">
-                    No tienes equipos. Crea uno primero en la sección Equipos.
+                  <Text className="text-sm text-gray-500 dark:text-neutral-400 mt-2 text-center px-4">
+                    No tienes equipos creados por ti en este deporte ({selectedCampeonato?.deporte}). Solo el dueño o creador del equipo puede inscribirlo en un campeonato.
                   </Text>
                 </View>
               ) : (
