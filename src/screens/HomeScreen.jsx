@@ -50,7 +50,7 @@ export default function HomeScreen({ navigation }) {
     return c.estado === filterStatus;
   });
 
-  
+
 
   const handleOpenJoin = async (campeonato) => {
     setSelectedCampeonato(campeonato);
@@ -90,7 +90,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }}>
 
- 
+
       <View className="px-5 pt-4 pb-2">
         <View className="flex-row gap-2">
           {STATUS_OPTIONS.map((opt) => (
@@ -99,15 +99,14 @@ export default function HomeScreen({ navigation }) {
               style={{
                 paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999,
                 borderWidth: 1,
-                backgroundColor: filterStatus === opt.value ? '#4f46e5' : isDarkMode ? "#171717": "#ffffff",
+                backgroundColor: filterStatus === opt.value ? '#4f46e5' : isDarkMode ? "#171717" : "#ffffff",
                 borderColor: filterStatus === opt.value ? '#4f46e5' : '#eaeaea',
               }}
               onPress={() => setFilterStatus(opt.value)}
             >
               <Text
-                className={`text-[12px] font-semibold ${
-                  filterStatus === opt.value ? "text-white" : "text-gray-600 dark:text-white"
-                }`}
+                className={`text-[12px] font-semibold ${filterStatus === opt.value ? "text-white" : "text-gray-600 dark:text-white"
+                  }`}
               >
                 {opt.label}
               </Text>
@@ -115,11 +114,11 @@ export default function HomeScreen({ navigation }) {
           ))}
         </View>
       </View>
-  <ScrollView
+      <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingVertical: 16 }}
         showsVerticalScrollIndicator={false}
->
+      >
         {loading ? (
           <View className="pt-2">
             <SkeletonCard />
@@ -128,8 +127,8 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : (
           <View>
-          {filteredList.map((item) => (
-             <EventCard
+            {filteredList.map((item) => (
+              <EventCard
                 evento={item}
                 key={item.id}
                 onPress={() => navigation.navigate('FasesCampeonatoScreen', {
@@ -144,8 +143,9 @@ export default function HomeScreen({ navigation }) {
                   !item.equipo_inscrito_nombre
                 }
                 onJoin={() => handleOpenJoin(item)}
+                isDarkMode={isDarkMode}
               />
-          ))}
+            ))}
           </View>
         )}
       </ScrollView>
@@ -197,9 +197,8 @@ export default function HomeScreen({ navigation }) {
                     onPress={() => setSelectedEquipoId(equipo.id)}
                   >
                     <View
-                      className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
-                        selectedEquipoId === equipo.id ? "border-indigo-600 bg-indigo-600" : "border-gray-400"
-                      }`}
+                      className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${selectedEquipoId === equipo.id ? "border-indigo-600 bg-indigo-600" : "border-gray-400"
+                        }`}
                     >
                       {selectedEquipoId === equipo.id && (
                         <View className="w-2 h-2 rounded-full bg-white" />

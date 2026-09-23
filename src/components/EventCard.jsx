@@ -16,7 +16,7 @@ const SPORT_ICONS = {
   voleibol: "sports-volleyball",
 };
 
-export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
+export default function EventCard({ evento, onPress, showJoinButton, onJoin, isDarkMode }) {
   const estado = evento.estado || "borrador";
   const sc = STATUS_CONFIG[estado] || STATUS_CONFIG.borrador;
 
@@ -42,7 +42,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
       onPress={onPress}
       style={{
         marginHorizontal: 20, marginBottom: 16,
-        borderRadius: 16, backgroundColor: '#ffffff',
+        borderRadius: 16, backgroundColor: isDarkMode ? '#171717' : '#ffffff',
         shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05, shadowRadius: 2, elevation: 2,
         borderWidth: 0.5, overflow: 'hidden', borderColor: '#eaeaea',
@@ -139,7 +139,7 @@ export default function EventCard({ evento, onPress, showJoinButton, onJoin }) {
         <TouchableOpacity
           style={{
             marginHorizontal: 16, marginBottom: 16, marginTop: 4,
-            paddingVertical: 12, backgroundColor: '#4f46e5',
+            paddingVertical: 12, backgroundColor: isDarkMode ? '#4f46e5' : '#4f46e5',
             borderRadius: 12, alignItems: 'center',
             flexDirection: 'row', justifyContent: 'center', gap: 8,
           }}
