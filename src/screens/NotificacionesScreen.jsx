@@ -12,7 +12,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import { NotificacionContext } from '../context/NotificacionContext';
 import { AmistadContext } from '../context/AmistadContext';
-import { getSolicitudesUnionCampeonatoService } from '../services/notificacionService';
 import { ThemeContext } from '../context/ThemeContext';
 
 // ─── Helper: Section Header ────────────────────────────────────────────
@@ -79,32 +78,19 @@ const NotifCard = ({ title, subtitle, date, children }) => (
 
 export default function NotificacionesScreen() {
   const {
-    solicitudes, invitaciones, invitacionesCampeonato, isLoading,
-    cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos,
+    solicitudes, invitaciones, invitacionesCampeonato, solicitudesUnion, isLoading,
+    cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos, cargarSolicitudesUnion,
     responderSolicitud, responderInvitacion, responderInvitacionCampeonato,
+    refreshNotificaciones,
   } = useContext(NotificacionContext);
   const { cargarAmigos } = useContext(AmistadContext);
   const { isDarkMode } = useContext(ThemeContext);
-  const [solicitudesUnion, setSolicitudesUnion] = useState([]);
-  const [loadingUnion, setLoadingUnion] = useState(false);
 
-  const loadAll = useCallback(async () => {
-    cargarSolicitudes();
-    cargarInvitaciones();
-    cargarInvitacionesCampeonatos();
-    setLoadingUnion(true);
-    try {
-      const data = await getSolicitudesUnionCampeonatoService();
-      setSolicitudesUnion(Array.isArray(data) ? data : []);
-    } catch (_) { setSolicitudesUnion([]); }
-    setLoadingUnion(false);
-  }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
-
-
-  React.useEffect(() => {
-    loadAll();
-  }, []);
-
+  useFocusEffect(
+    useCallback(() => {
+      refreshNotificaciones();
+    }, [refreshNotificaciones])
+  );
 
   const totalPending =
     (solicitudes?.length || 0) +
@@ -112,7 +98,7 @@ export default function NotificacionesScreen() {
     (invitacionesCampeonato?.length || 0) +
     (solicitudesUnion?.length || 0);
 
-  if (isLoading && !solicitudes?.length && !invitaciones?.length) {
+  if (isLoading && !solicitudes?.length && !invitaciones?.length && !invitacionesCampeonato?.length && !solicitudesUnion?.length) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? "#171717" : "#f9fafb" }} >
         <ActivityIndicator size="large" color="#1D4ED8" />
@@ -125,7 +111,7 @@ export default function NotificacionesScreen() {
       <ScrollView style={{ flex: 1 }} className="px-5" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
 
-        {totalPending === 0 && !isLoading && !loadingUnion && (
+        {totalPending === 0 && !isLoading && (
           <View className="items-center mt-12 py-10 px-8 bg-white dark:bg-neutral-800 rounded-[40px] shadow-sm shadow-blue-100 dark:shadow-none">
             <View className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/30 items-center justify-center mb-4">
               <Ionicons name="checkmark-done" size={32} color="#3B82F6" />
@@ -191,9 +177,7 @@ export default function NotificacionesScreen() {
 
         {/* ── Solicitudes de Unión (user → owner, owner sees here) ─ */}
         <SectionHeader icon="enter" title="Solicitudes Recibidas" count={solicitudesUnion?.length || 0} />
-        {loadingUnion ? (
-          <ActivityIndicator color="#1D4ED8" className="mb-4" />
-        ) : solicitudesUnion?.length === 0 ? (
+        {solicitudesUnion?.length === 0 ? (
           <EmptyBox text="No tienes solicitudes de unión pendientes de tus campeonatos." />
         ) : null}
         {(solicitudesUnion || []).map((item) => (
@@ -207,15 +191,11 @@ export default function NotificacionesScreen() {
               isDarkMode={isDarkMode}
               onAccept={async () => {
                 await responderInvitacionCampeonato(item.id, 'aceptado');
-                const data = await getSolicitudesUnionCampeonatoService();
-                setSolicitudesUnion(Array.isArray(data) ? data : []);
-                await cargarInvitacionesCampeonatos();
+                await refreshNotificaciones();
               }}
               onReject={async () => {
                 await responderInvitacionCampeonato(item.id, 'rechazado');
-                const data = await getSolicitudesUnionCampeonatoService();
-                setSolicitudesUnion(Array.isArray(data) ? data : []);
-                await cargarInvitacionesCampeonatos();
+                await refreshNotificaciones();
               }}
             />
           </NotifCard>

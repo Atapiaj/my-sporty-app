@@ -56,7 +56,7 @@ export default function DrawerNavigator() {
   const { logout } = useContext(AuthContext);
   const { isDarkMode } = useContext(ThemeContext);
   const { loading, refreshCampeonatosPublicos } = useContext(CampeonatoContext);
-  const { loading: NotificacionesLoading, refreshNotificaciones } = useContext(NotificacionContext);
+  const { loading: NotificacionesLoading, refreshNotificaciones, totalNotificaciones } = useContext(NotificacionContext);
   const { totalUnread } = useContext(ChatContext);
 
   function CustomDrawerContent(props) {
@@ -245,6 +245,16 @@ export default function DrawerNavigator() {
         name="Notificaciones"
         component={NotificacionesScreen}
         options={{
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flex: 1, paddingRight: 10 }}>
+              <Text style={{ color, fontWeight: '500' }}>Notificaciones</Text>
+              {totalNotificaciones > 0 && (
+                <View style={{ backgroundColor: '#2563eb', borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 4 }}>
+                  <Text style={{ color: 'white', fontSize: 11, fontWeight: 'bold' }}>{totalNotificaciones > 99 ? '99+' : totalNotificaciones}</Text>
+                </View>
+              )}
+            </View>
+          ),
           drawerIcon: ({ color, size }) => (
             <Ionicons name="notifications-outline" size={size} color={color} />
           ),

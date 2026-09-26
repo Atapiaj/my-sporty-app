@@ -61,7 +61,10 @@ export default function HomeScreen({ navigation }) {
       const res = await getEquiposService();
       const equipos = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
       // Filter teams by sport AND ownership (only team creator/owner can register team)
-      const matchingTeams = equipos.filter(e => e.propietario_id === usuario?.id && e.deporte === campeonato.deporte);
+      const matchingTeams = equipos.filter(
+        e => e.propietario_id === usuario?.id &&
+        e.deporte?.trim().toLowerCase() === campeonato.deporte?.trim().toLowerCase()
+      );
       setMisEquipos(matchingTeams);
     } catch (e) {
       setMisEquipos([]);

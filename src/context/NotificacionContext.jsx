@@ -13,6 +13,7 @@ import {
   responderInvitacionService,
   getInvitacionesCampeonatosService,
   responderInvitacionCampeonatoService,
+  getSolicitudesUnionCampeonatoService,
 } from "../services/notificacionService";
 import { SocketContext } from "./SocketContext";
 import { showLocalNotification } from "../utils/localNotifications";
@@ -27,6 +28,7 @@ export const NotificacionProvider = ({ children }) => {
   const [solicitudes, setSolicitudes] = useState([]);
   const [invitaciones, setInvitaciones] = useState([]);
   const [invitacionesCampeonato, setInvitacionesCampeonato] = useState([]);
+  const [solicitudesUnion, setSolicitudesUnion] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const cargarSolicitudes = useCallback(async () => {
@@ -65,15 +67,29 @@ export const NotificacionProvider = ({ children }) => {
     }
   }, []);
 
+  const cargarSolicitudesUnion = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await getSolicitudesUnionCampeonatoService();
+      setSolicitudesUnion(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error al cargar solicitudes de unión a campeonatos:", err);
+      setSolicitudesUnion([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const refreshNotificaciones = useCallback(async () => {
     setIsLoading(true);
     await Promise.all([
       cargarSolicitudes(),
       cargarInvitaciones(),
       cargarInvitacionesCampeonatos(),
+      cargarSolicitudesUnion(),
     ]);
     setIsLoading(false);
-  }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
+  }, [cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos, cargarSolicitudesUnion]);
 
   const responderSolicitud = useCallback(async (id, estado) => {
     setIsLoading(true);
@@ -113,8 +129,9 @@ export const NotificacionProvider = ({ children }) => {
       cargarSolicitudes();
       cargarInvitaciones();
       cargarInvitacionesCampeonatos();
+      cargarSolicitudesUnion();
     }
-  }, [usuario,cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos]);
+  }, [usuario, cargarSolicitudes, cargarInvitaciones, cargarInvitacionesCampeonatos, cargarSolicitudesUnion]);
 
   useEffect(() => {
     if (socket) {
@@ -125,7 +142,7 @@ export const NotificacionProvider = ({ children }) => {
         refreshNotificaciones();
         showLocalNotification(
           "Nueva notificación",
-          "Tienes una nueva solicitud de amistad o invitación a equipo."
+          "Tienes una nueva solicitud de amistad, invitación o solicitud a campeonato."
         );
       };
       socket.on("nueva_notificacion", handleNuevaNotif);
@@ -135,14 +152,26 @@ export const NotificacionProvider = ({ children }) => {
     }
   }, [socket, refreshNotificaciones]);
 
+  const totalNotificaciones = useMemo(
+    () =>
+      (solicitudes?.length || 0) +
+      (invitaciones?.length || 0) +
+      (invitacionesCampeonato?.length || 0) +
+      (solicitudesUnion?.length || 0),
+    [solicitudes, invitaciones, invitacionesCampeonato, solicitudesUnion]
+  );
+
   const value = useMemo(
     () => ({
       solicitudes,
       invitaciones,
       invitacionesCampeonato,
+      solicitudesUnion,
+      totalNotificaciones,
       cargarSolicitudes,
       cargarInvitaciones,
       cargarInvitacionesCampeonatos,
+      cargarSolicitudesUnion,
       responderSolicitud,
       responderInvitacion,
       responderInvitacionCampeonato,
@@ -153,9 +182,12 @@ export const NotificacionProvider = ({ children }) => {
       solicitudes,
       invitaciones,
       invitacionesCampeonato,
+      solicitudesUnion,
+      totalNotificaciones,
       cargarSolicitudes,
       cargarInvitaciones,
       cargarInvitacionesCampeonatos,
+      cargarSolicitudesUnion,
       responderSolicitud,
       responderInvitacion,
       responderInvitacionCampeonato,
